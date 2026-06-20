@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Réviz' — du CM2 à la Terminale</title>
+<style>
+  :root{
+    --bg:#0f1220;--bg2:#171b30;--card:#1d2238;--card2:#232a45;
+    --txt:#e8ebf7;--muted:#9aa3c4;--line:#2c3358;
+    --accent:#6c8cff;--accent2:#8f6cff;--good:#34d399;--warn:#fbbf24;--bad:#f87171;
+    --shadow:0 10px 30px rgba(0,0,0,.35);--radius:16px;
+  }
+  [data-theme="light"]{
+    --bg:#eef1fb;--bg2:#fff;--card:#fff;--card2:#f4f6ff;--txt:#1a1e33;--muted:#5b6486;--line:#e1e6f5;
+    --accent:#4361ee;--accent2:#7048e8;--good:#10b981;--warn:#d97706;--bad:#ef4444;--shadow:0 10px 30px rgba(60,70,120,.12);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:linear-gradient(160deg,var(--bg),var(--bg2));color:var(--txt);min-height:100vh}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px 18px 90px}
+  header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0 10px}
+  .logo{width:46px;height:46px;border-radius:14px;flex:0 0 auto;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:24px;box-shadow:var(--shadow)}
+  h1{font-size:1.25rem;margin:0;font-weight:800}
+  .sub{color:var(--muted);font-size:.82rem;margin-top:2px}
+  .spacer{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:700;font-size:.85rem}
+  .chip.xp{color:var(--warn)}.chip.streak{color:#fb7185}
+  .iconbtn{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:9px 12px;cursor:pointer;font-size:.9rem}
+  select,input,textarea{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:11px 12px;font-size:.95rem;font-family:inherit;outline:none;width:100%}
+  select:focus,input:focus,textarea:focus{border-color:var(--accent)}
+  label{font-size:.8rem;color:var(--muted);display:block;margin:0 0 6px 2px}
+  textarea{min-height:120px;resize:vertical;line-height:1.5}
+  /* selecteurs matiere/niveau */
+  .pickbar{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 14px}
+  .subjects{display:flex;gap:8px;overflow:auto;padding:4px 0}
+  .subjbtn{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:14px;padding:10px 14px;cursor:pointer;font-weight:600;font-size:.8rem;transition:.15s;min-width:84px}
+  .subjbtn .si{font-size:1.5rem}
+  .subjbtn:hover{border-color:var(--accent)}
+  .subjbtn.on{color:#fff;border:0}
+  nav.tabs{display:flex;gap:6px;background:var(--card);padding:6px;border-radius:14px;border:1px solid var(--line);margin:6px 0 18px;overflow:auto}
+  nav.tabs button{flex:1;min-width:96px;border:0;background:transparent;color:var(--muted);padding:11px 8px;border-radius:10px;cursor:pointer;font-size:.88rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.15s}
+  nav.tabs button .ic{font-size:1.1rem}
+  nav.tabs button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:var(--shadow)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+  .btn{border:0;border-radius:12px;padding:12px 16px;cursor:pointer;font-weight:700;font-size:.95rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn.ghost{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+  .btn.good{background:linear-gradient(135deg,#10b981,#059669)}
+  .btn.sm{padding:8px 12px;font-size:.85rem}
+  .btn.bad{background:linear-gradient(135deg,#ef4444,#dc2626)}
+  .muted{color:var(--muted)}.small{font-size:.82rem}.center{text-align:center}.hidden{display:none!important}
+  .lessonrow{display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.15s}
+  .lessonrow:hover{border-color:var(--accent);transform:translateX(2px)}
+  .lessonrow .ln{flex:1;font-weight:700}
+  .lessonrow .lm{color:var(--muted);font-size:.78rem;font-weight:500;margin-top:2px}
+  .lessonrow .lbar{width:70px;height:7px;border-radius:999px;background:var(--card);border:1px solid var(--line);overflow:hidden;flex:0 0 auto}
+  .lessonrow .lbar>div{height:100%;background:linear-gradient(90deg,var(--good),#34d399)}
+  .cours{line-height:1.62;white-space:pre-wrap}
+  .cours b{color:var(--accent)}
+  .retenir{background:var(--card2);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:12px 14px;margin:12px 0;line-height:1.6}
+  .retenir .ri{padding:5px 0;border-bottom:1px dashed var(--line)}
+  .retenir .ri:last-child{border:0}
+  .retenir b{color:var(--warn)}
+  .opt{display:block;width:100%;text-align:left;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:13px;margin-bottom:9px;cursor:pointer;font-size:1rem;transition:.15s}
+  .opt:hover{border-color:var(--accent)}
+  .opt.correct{background:rgba(16,185,129,.18);border-color:var(--good)}
+  .opt.wrong{background:rgba(239,68,68,.16);border-color:var(--bad)}
+  .exo{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .exo .q{font-weight:700;margin-bottom:10px;line-height:1.5}
+  .exo .tag{display:inline-block;font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;border-radius:999px;padding:2px 8px;margin-bottom:8px}
+  .tag.qcm{background:rgba(108,140,255,.2);color:var(--accent)}
+  .tag.saisie{background:rgba(52,211,153,.2);color:var(--good)}
+  .tag.open{background:rgba(251,191,36,.2);color:var(--warn)}
+  .fb{margin-top:10px;font-size:.92rem;line-height:1.5}
+  .fb.ok{color:var(--good)}.fb.no{color:var(--bad)}
+  .corrige{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;line-height:1.55;white-space:pre-wrap}
+  .stat{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center}
+  .stat .n{font-size:1.8rem;font-weight:800;color:var(--accent)}
+  .stat .l{color:var(--muted);font-size:.8rem;margin-top:4px}
+  .gtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .progress{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .progress>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.3s}
+  .flash{min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:20px;padding:28px 20px;cursor:pointer;text-align:center}
+  .flash .term{font-size:1.6rem;font-weight:800;line-height:1.35}
+  .flash .ans{font-size:1.4rem;font-weight:700;color:var(--accent);margin-top:10px}
+  .flash .hint{color:var(--muted);font-size:.82rem;margin-top:16px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--line);color:var(--txt);padding:12px 18px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transition:.25s;z-index:50;max-width:92%}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .note20{font-size:2rem;font-weight:800}
+  .breadcrumb{color:var(--muted);font-size:.82rem;margin-bottom:6px;cursor:pointer}
+  .breadcrumb:hover{color:var(--accent)}
+  a{color:var(--accent)}
+  /* Pavé de symboles (saisie maths/sciences) */
+  .keypad{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .keycap{min-width:40px;min-height:40px;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:9px;font-size:1.05rem;cursor:pointer;font-family:inherit}
+  .keycap:hover{border-color:var(--accent)}
+  .keycap:active{background:var(--card2)}
+  /* Tactile / multi-appareils : cibles confortables, pas de surbrillance bleue */
+  button,select,input,textarea,.opt,.lessonrow,.subjbtn,.keycap{-webkit-tap-highlight-color:transparent}
+  button,.opt,.lessonrow,.subjbtn,.keycap,nav.tabs button{touch-action:manipulation}
+  .btn,.opt,.lessonrow{min-height:44px}
+  input,textarea,select{font-size:16px}  /* >=16px : évite le zoom auto sur iOS */
+  /* Compte à rebours d'examen */
+  .countdown{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:0}
+  .countdown .big{font-size:1.6rem;font-weight:800}
+  /* Responsive : tablette */
+  @media(max-width:820px){ .wrap{padding:14px 12px 84px} }
+  /* Responsive : smartphone */
+  @media(max-width:560px){
+    .wrap{padding:12px 10px 84px}
+    h1{font-size:1.1rem}
+    .flash .term{font-size:1.3rem}
+    nav.tabs button{min-width:74px;font-size:.78rem;padding:10px 6px}
+    nav.tabs button .ic{font-size:1.25rem}
+    .subjbtn{min-width:76px;padding:9px 10px}
+    .stat .n{font-size:1.5rem}
+    .card{padding:14px}
+    .row>*{min-width:120px}
+    .note20{font-size:1.7rem}
+    .keycap{min-width:44px;min-height:44px;flex:1}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">🎓</div>
+    <div>
+      <h1>Réviz'</h1>
+      <div class="sub">Apprendre, s'entraîner & s'évaluer — du CM2 à la Terminale</div>
+    </div>
+    <div class="spacer"></div>
+    <span class="chip streak" id="hudStreak" title="Jours consécutifs">🔥 0</span>
+    <span class="chip xp" id="hudXp" title="Points">⭐ 0</span>
+    <button class="iconbtn" id="themeBtn" title="Thème">🌙</button>
+  </header>
+
+  <div class="subjects" id="subjects"></div>
+  <div class="pickbar">
+    <div style="max-width:220px"><label>Niveau</label><select id="levelSel"></select></div>
+    <div style="flex:1;display:flex;align-items:flex-end"><div class="muted small" id="pickInfo"></div></div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button data-view="lessons" class="active"><span class="ic">📚</span>Leçons</button>
+    <button data-view="train"><span class="ic">🎯</span>S'entraîner</button>
+    <button data-view="exam"><span class="ic">📝</span>Évaluation</button>
+    <button data-view="progress"><span class="ic">📈</span>Progrès</button>
+    <button data-view="settings"><span class="ic">⚙️</span>Réglages</button>
+  </nav>
+
+  <section id="view-lessons"></section>
+  <section id="view-train" class="hidden"></section>
+  <section id="view-exam" class="hidden"></section>
+  <section id="view-progress" class="hidden"></section>
+  <section id="view-settings" class="hidden"></section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="cours.js"></script>
+<script>
+"use strict";
+/* ============================ Données : programme ============================ */
+const LEVELS=["CE1","CE2","CM1","CM2","6e","5e","4e","3e","2nde","1ère","Terminale"];
+const SUBJECTS=[
+ {id:"fr",name:"Français",icon:"📖",color:"linear-gradient(135deg,#6c8cff,#8f6cff)"},
+ {id:"math",name:"Mathématiques",icon:"📐",color:"linear-gradient(135deg,#f59e0b,#ef4444)"},
+ {id:"hist",name:"Histoire",icon:"🏛️",color:"linear-gradient(135deg,#b45309,#92400e)"},
+ {id:"geo",name:"Géographie",icon:"🌍",color:"linear-gradient(135deg,#10b981,#059669)"},
+ {id:"phys",name:"Physique",icon:"⚛️",color:"linear-gradient(135deg,#3b82f6,#1d4ed8)"},
+ {id:"chim",name:"Chimie",icon:"🧪",color:"linear-gradient(135deg,#8b5cf6,#6d28d9)"},
+ {id:"svt",name:"SVT",icon:"🧬",color:"linear-gradient(135deg,#22c55e,#15803d)"}
+];
+/* Chaque leçon : {id,t,cours,retenir:[[recto,verso]],exos:[{t:'qcm'|'saisie'|'open',...}]} */
+const SEED_CURRICULUM={
+ math:{
+  "CM2":[
+   {id:"math_cm2_frac",t:"Les fractions",
+    cours:"Une <b>fraction</b> représente une ou plusieurs parts d'un tout partagé en parts égales.\nDans a/b : <b>b</b> (dénominateur) = nombre de parts égales ; <b>a</b> (numérateur) = nombre de parts prises.\n\n• Fraction d'une quantité : « les 3/4 de 20 » = 20 ÷ 4 × 3 = 15.\n• Fractions égales : on multiplie (ou divise) numérateur ET dénominateur par le même nombre. Ex : 1/2 = 2/4 = 50/100.\n• Comparer : si même dénominateur, la plus grande fraction est celle qui a le plus grand numérateur.",
+    retenir:[["Fraction de N (a/b de N)","N ÷ b × a"],["1/2 = … /4 = … /100","2/4 = 50/100"],["Demi, quart, dixième","1/2, 1/4, 1/10"]],
+    exos:[
+     {t:"qcm",q:"Que valent les 3/4 de 20 ?",opts:["12","15","16","5"],a:1,ex:"20 ÷ 4 = 5, puis 5 × 3 = 15."},
+     {t:"qcm",q:"Quelle fraction est égale à 1/2 ?",opts:["2/3","3/5","4/8","1/4"],a:2,ex:"4/8 : on a multiplié 1 et 2 par 4."},
+     {t:"saisie",q:"Écris en chiffres : un quart (sous la forme a/b).",a:["1/4"],ex:"Un quart = 1/4."},
+     {t:"saisie",q:"Combien valent les 2/5 de 30 ?",a:["12"],ex:"30 ÷ 5 = 6, puis 6 × 2 = 12."}
+    ]}
+  ],
+  "3e":[
+   {id:"math_3e_pyth",t:"Théorème de Pythagore",
+    cours:"Dans un <b>triangle rectangle</b>, le carré de l'hypoténuse (le plus grand côté, opposé à l'angle droit) est égal à la somme des carrés des deux autres côtés.\n\nSi le triangle ABC est rectangle en A : <b>BC² = AB² + AC²</b>.\n\n• Calculer une longueur : on isole le côté cherché puis on prend la racine carrée.\n• Réciproque : si BC² = AB² + AC², alors le triangle est rectangle en A (sert à prouver l'angle droit).",
+    retenir:[["Théorème de Pythagore (rectangle en A)","BC² = AB² + AC²"],["Hypoténuse","côté le plus long, opposé à l'angle droit"],["Réciproque","si BC²=AB²+AC² alors rectangle en A"]],
+    exos:[
+     {t:"qcm",q:"Triangle rectangle en A, AB=3, AC=4. Que vaut BC ?",opts:["5","6","7","25"],a:0,ex:"BC²=3²+4²=9+16=25, donc BC=√25=5."},
+     {t:"saisie",q:"Rectangle en A, AB=6, AC=8. Donne BC.",a:["10"],ex:"BC²=36+64=100, BC=10."},
+     {t:"qcm",q:"BC=13, AB=5. Le triangle est rectangle en A. Que vaut AC ?",opts:["12","8","18","144"],a:0,ex:"AC²=BC²−AB²=169−25=144, AC=12."}
+    ]},
+   {id:"math_3e_ident",t:"Les identités remarquables",
+    cours:"Trois égalités à connaître par cœur pour développer ou factoriser :\n\n<b>(a+b)² = a² + 2ab + b²</b>\n<b>(a−b)² = a² − 2ab + b²</b>\n<b>(a+b)(a−b) = a² − b²</b>\n\n• Développer = enlever les parenthèses (gauche → droite).\n• Factoriser = mettre en facteur (droite → gauche), très utile pour résoudre des équations.",
+    retenir:[["(a+b)²","a² + 2ab + b²"],["(a−b)²","a² − 2ab + b²"],["(a+b)(a−b)","a² − b²"]],
+    exos:[
+     {t:"qcm",q:"Développer (x+3)² :",opts:["x²+9","x²+6x+9","x²+3x+9","x²+6x+3"],a:1,ex:"(x+3)²=x²+2·x·3+3²=x²+6x+9."},
+     {t:"saisie",q:"Factorise x²−25 sous la forme (a+b)(a−b). Écris-le (avec x).",a:["(x+5)(x-5)","(x-5)(x+5)"],ex:"x²−25=x²−5²=(x+5)(x−5)."},
+     {t:"qcm",q:"Développer (x−4)² :",opts:["x²−16","x²−8x+16","x²+8x+16","x²−8x−16"],a:1,ex:"(x−4)²=x²−8x+16."}
+    ]}
+  ],
+  "Terminale":[
+   {id:"math_term_deriv",t:"Dérivées (rappels et applications)",
+    cours:"La <b>dérivée</b> f′ d'une fonction f donne, en chaque point, le coefficient directeur de la tangente — donc le sens de variation.\n\nDérivées usuelles : (xⁿ)′ = n·xⁿ⁻¹ ; (1/x)′ = −1/x² ; (√x)′ = 1/(2√x) ; (eˣ)′ = eˣ ; (ln x)′ = 1/x.\nOpérations : (u+v)′ = u′+v′ ; (k·u)′ = k·u′ ; (uv)′ = u′v + uv′ ; (u/v)′ = (u′v − uv′)/v².\n\n<b>Étude des variations</b> : on calcule f′(x), on étudie son signe ; f croît là où f′>0, décroît là où f′<0. Un extremum local s'obtient là où f′ s'annule en changeant de signe.",
+    retenir:[["(xⁿ)′","n·xⁿ⁻¹"],["(eˣ)′","eˣ"],["(ln x)′","1/x"],["(uv)′","u′v + uv′"],["(u/v)′","(u′v − uv′)/v²"],["f croissante quand","f′(x) > 0"]],
+    exos:[
+     {t:"qcm",q:"Dérivée de f(x)=x³ :",opts:["3x²","x²","3x","x⁴/4"],a:0,ex:"(xⁿ)′=n·xⁿ⁻¹, donc 3x²."},
+     {t:"saisie",q:"Dérivée de f(x)=2x²+5x (écris f'(x)).",a:["4x+5"],ex:"f′(x)=4x+5."},
+     {t:"open",q:"Soit f(x)=x³−3x. Étudie le sens de variation de f sur ℝ et précise ses extremums locaux. Rédige le raisonnement complet.",
+      expected:"f′(x)=3x²−3=3(x−1)(x+1). f′>0 pour x<−1 et x>1 (f croissante), f′<0 pour −1<x<1 (f décroissante). Maximum local en x=−1 (f(−1)=2), minimum local en x=1 (f(1)=−2). Tableau de variations attendu, signe de f′ justifié."}
+    ]}
+  ]
+ },
+ fr:{
+  "CM2":[
+   {id:"fr_cm2_accord",t:"Les accords (sujet-verbe et dans le groupe nominal)",
+    cours:"<b>Accord sujet-verbe</b> : le verbe s'accorde en personne et en nombre avec son sujet. On trouve le sujet en posant « Qui est-ce qui … ? ».\nEx : « Les enfants <b>jouent</b> » (sujet pluriel → verbe en -nt).\n\n<b>Accord dans le groupe nominal</b> : le déterminant et l'adjectif s'accordent en genre (masculin/féminin) et en nombre (singulier/pluriel) avec le nom.\nEx : « une grande maison » → « des grandes maisons ».\n\nAttention : le sujet peut être éloigné du verbe ou inversé. « Dans le jardin <b>chantent</b> les oiseaux » (sujet = les oiseaux).",
+    retenir:[["Trouver le sujet","« Qui est-ce qui + verbe ? »"],["Verbe, 3e pers. du pluriel","souvent -ent (ils jouent)"],["Adjectif","s'accorde en genre et en nombre avec le nom"]],
+    exos:[
+     {t:"qcm",q:"« Les chats … sur le mur. » Choisis la bonne forme.",opts:["dort","dorment","dormes","dormons"],a:1,ex:"Sujet pluriel (les chats) → dorment."},
+     {t:"saisie",q:"Mets au pluriel : « un beau jardin ». (écris le groupe complet)",a:["de beaux jardins","des beaux jardins"],ex:"Au pluriel : « de beaux jardins » (beau → beaux)."},
+     {t:"qcm",q:"« Dans la forêt … les oiseaux. » Quel verbe ?",opts:["chante","chantent","chantons","chantez"],a:1,ex:"Sujet inversé = les oiseaux (pluriel) → chantent."}
+    ]}
+  ],
+  "3e":[
+   {id:"fr_3e_figures",t:"Les figures de style",
+    cours:"Les figures de style créent des effets et enrichissent le sens.\n\n• <b>Comparaison</b> : rapproche deux éléments avec un outil (comme, tel, ainsi que). « Fort comme un lion ».\n• <b>Métaphore</b> : comparaison sans outil. « Cet homme est un lion ».\n• <b>Personnification</b> : prête des traits humains à une chose. « Le vent murmure ».\n• <b>Hyperbole</b> : exagération. « Mourir de faim ».\n• <b>Anaphore</b> : répétition d'un mot en début de phrases/vers.\n• <b>Métonymie</b> : désigne par un élément lié (« boire un verre »).\n• <b>Antithèse</b> : oppose deux termes. « Ici tout n'est qu'ordre et beauté ».",
+    retenir:[["Comparaison","outil de comparaison (comme, tel…)"],["Métaphore","comparaison SANS outil"],["Personnification","traits humains à une chose"],["Hyperbole","exagération"],["Anaphore","répétition en début de phrase/vers"]],
+    exos:[
+     {t:"qcm",q:"« La ville dort. » Quelle figure ?",opts:["Hyperbole","Personnification","Métonymie","Comparaison"],a:1,ex:"On prête le sommeil (humain) à la ville → personnification."},
+     {t:"qcm",q:"« Il pleut des cordes. » Quelle figure ?",opts:["Hyperbole","Métaphore","Anaphore","Antithèse"],a:0,ex:"Exagération forte → hyperbole (aussi image, mais l'effet dominant est l'exagération)."},
+     {t:"open",q:"Repère et nomme la figure de style dans : « Cette femme est une rose qui s'épanouit au soleil. » Puis explique en 3-4 lignes l'effet produit.",
+      expected:"Métaphore (assimilation femme = rose, sans outil de comparaison). Effet : valorise la beauté, la jeunesse, la fragilité/éclat ; image poétique, connotations positives. On peut évoquer le champ lexical de la nature et l'idée d'épanouissement."}
+    ]}
+  ],
+  "Terminale":[
+   {id:"fr_term_dissert",t:"La dissertation (méthode)",
+    cours:"La dissertation est une <b>démonstration organisée</b> qui répond à une problématique.\n\n1) <b>Analyser le sujet</b> : définir les mots-clés, repérer les tensions.\n2) <b>Problématiser</b> : transformer le sujet en une question précise (la problématique).\n3) <b>Plan</b> : souvent dialectique (thèse / antithèse / dépassement) ou thématique.\n4) <b>Introduction</b> : amorce → présentation du sujet → problématique → annonce du plan.\n5) <b>Développement</b> : chaque partie = argument + exemple(s) précis (œuvres, citations) + analyse.\n6) <b>Conclusion</b> : bilan + réponse + ouverture.\n\nL'évaluation valorise l'<b>esprit critique</b>, la précision des exemples et la <b>qualité de la rédaction</b> (connecteurs, transitions).",
+    retenir:[["Étapes d'analyse","mots-clés → tensions → problématique"],["Plan dialectique","thèse / antithèse / synthèse"],["Intro","amorce, sujet, problématique, plan"],["Paragraphe","argument + exemple + analyse"]],
+    exos:[
+     {t:"qcm",q:"Dans l'introduction, que vient-on annoncer juste après la problématique ?",opts:["La conclusion","Le plan","Un exemple","La biographie de l'auteur"],a:1,ex:"On annonce le plan (les grandes parties)."},
+     {t:"open",q:"Sujet : « La littérature doit-elle nécessairement plaire pour instruire ? » Rédige une introduction complète (amorce, présentation du sujet, problématique, annonce du plan).",
+      expected:"Amorce pertinente (citation/contexte), reformulation du sujet et définition des termes (« plaire », « instruire »), problématique claire sous forme de question, annonce d'un plan structuré (ex. dialectique). On valorise la fluidité, la précision et l'absence de réponse hâtive."}
+    ]}
+  ]
+ },
+ hist:{
+  "3e":[
+   {id:"hist_3e_ww2",t:"La Seconde Guerre mondiale (1939-1945)",
+    cours:"Conflit le plus meurtrier de l'histoire (env. 60 millions de morts), une <b>guerre d'anéantissement</b> et une guerre totale.\n\n• <b>1939</b> : invasion de la Pologne par l'Allemagne nazie → début de la guerre.\n• <b>1940</b> : défaite française, appel du 18 juin (de Gaulle).\n• <b>1941</b> : entrée de l'URSS puis des États-Unis dans la guerre.\n• <b>1942-1943</b> : tournant (Stalingrad, El-Alamein, Midway).\n• <b>1944</b> : débarquement en Normandie (6 juin), libération.\n• <b>1945</b> : capitulation allemande (8 mai), bombes atomiques sur Hiroshima/Nagasaki, capitulation japonaise (2 sept.).\n\nLe régime nazi organise le <b>génocide des Juifs et des Tsiganes</b> (la Shoah, ~6 millions de Juifs assassinés).",
+    retenir:[["Début de la 2de GM","1er sept. 1939 (invasion de la Pologne)"],["Débarquement de Normandie","6 juin 1944"],["Capitulation allemande","8 mai 1945"],["Shoah","génocide des Juifs (~6 millions)"],["Tournant","Stalingrad (1942-43)"]],
+    exos:[
+     {t:"qcm",q:"Quand a lieu le débarquement de Normandie ?",opts:["8 mai 1945","6 juin 1944","11 nov. 1918","1er sept. 1939"],a:1,ex:"Le 6 juin 1944 (D-Day)."},
+     {t:"saisie",q:"En quelle année (4 chiffres) se termine la guerre en Europe ?",a:["1945"],ex:"Capitulation allemande le 8 mai 1945."},
+     {t:"open",q:"En quoi peut-on dire que la Seconde Guerre mondiale est une « guerre d'anéantissement » ? Développe avec des exemples précis (≈10 lignes).",
+      expected:"Volonté de détruire l'adversaire et des populations entières : guerre totale (économie, civils), bombardements massifs, front de l'Est d'une violence extrême, et surtout le génocide (Shoah) + crimes de masse. Exemples attendus : Stalingrad, camps d'extermination, Hiroshima. Esprit critique sur l'ampleur et la nouveauté de cette violence."}
+    ]}
+  ],
+  "Terminale":[
+   {id:"hist_term_gf",t:"La Guerre froide (1947-1991)",
+    cours:"Affrontement <b>indirect</b> entre deux blocs (États-Unis/bloc de l'Ouest et URSS/bloc de l'Est) : un « équilibre de la terreur » nucléaire sans guerre directe entre les deux Grands.\n\n• <b>1947</b> : doctrine Truman / plan Marshall ; rupture.\n• <b>1948-49</b> : blocus de Berlin.\n• <b>1961</b> : construction du mur de Berlin.\n• <b>1962</b> : crise des missiles de Cuba (point culminant).\n• <b>Détente</b> puis regain de tensions ; <b>1989</b> : chute du mur de Berlin ; <b>1991</b> : disparition de l'URSS.\n\nForme : course aux armements, espionnage, conflits périphériques (Corée, Vietnam), propagande.",
+    retenir:[["Début (rupture)","1947 (doctrine Truman / plan Marshall)"],["Mur de Berlin construit","1961"],["Crise des missiles","Cuba, 1962"],["Chute du mur","1989"],["Fin de l'URSS","1991"]],
+    exos:[
+     {t:"qcm",q:"Quel épisode est considéré comme le point culminant de la Guerre froide ?",opts:["Blocus de Berlin","Crise de Cuba (1962)","Chute du mur","Guerre de Corée"],a:1,ex:"La crise des missiles de Cuba (1962), au bord de la guerre nucléaire."},
+     {t:"open",q:"Pourquoi parle-t-on de Guerre « froide » ? Montrez, à l'aide d'exemples, que l'affrontement est resté indirect tout en étant mondial (≈12 lignes).",
+      expected:"« Froide » = pas d'affrontement militaire direct USA-URSS (dissuasion nucléaire, équilibre de la terreur). Mais conflit mondial par procuration : guerres de Corée, Vietnam, Afghanistan, crises (Berlin, Cuba), course aux armements et à l'espace, propagande idéologique. Analyse nuancée attendue."}
+    ]}
+  ]
+ },
+ geo:{
+  "4e":[
+   {id:"geo_4e_urb",t:"L'urbanisation du monde",
+    cours:"Depuis 2007, plus de la moitié de l'humanité vit en <b>ville</b> : c'est l'<b>urbanisation</b>.\n\n• <b>Métropole</b> : grande ville qui concentre les fonctions de commandement (économie, pouvoir, culture).\n• <b>Mégapole</b> : agglomération de plus de 10 millions d'habitants.\n• L'<b>étalement urbain</b> repousse les limites de la ville (périurbain).\n• Dans les pays en développement, croissance urbaine très rapide → <b>bidonvilles</b>, défis (transports, eau, inégalités).\n\nLes villes sont reliées par la mondialisation (flux de personnes, marchandises, informations).",
+    retenir:[["Urbanisation","part croissante d'habitants en ville"],["Métropole","ville qui commande (économie, pouvoir)"],["Mégapole","agglomération > 10 millions d'hab."],["Étalement urbain","extension de la ville (périurbain)"]],
+    exos:[
+     {t:"qcm",q:"Une mégapole, c'est une agglomération de plus de…",opts:["1 million d'hab.","10 millions d'hab.","100 000 hab.","100 millions d'hab."],a:1,ex:"Plus de 10 millions d'habitants."},
+     {t:"saisie",q:"Comment appelle-t-on une grande ville qui concentre les fonctions de commandement ?",a:["métropole","une métropole","metropole"],ex:"Une métropole."},
+     {t:"qcm",q:"L'étalement urbain désigne :",opts:["la baisse de population","l'extension de la ville vers la périphérie","la destruction des villes","l'exode rural inversé"],a:1,ex:"L'extension spatiale de la ville (périurbanisation)."}
+    ]}
+  ],
+  "Terminale":[
+   {id:"geo_term_mond",t:"La mondialisation : acteurs, flux, débats",
+    cours:"La <b>mondialisation</b> est la mise en relation croissante des territoires par des flux (marchandises, capitaux, informations, personnes).\n\n• <b>Acteurs</b> : firmes transnationales (FTN), États, organisations (OMC, FMI), ONG, individus.\n• <b>Flux</b> : commerciaux, financiers, migratoires, d'informations (numérique).\n• <b>Effets</b> : intégration de certains territoires (métropoles, façades maritimes) mais aussi <b>inégalités</b> et territoires en marge.\n• <b>Débats</b> : altermondialisme, enjeux environnementaux, relocalisations, souveraineté.\n\nLa mondialisation est <b>sélective</b> : elle hiérarchise les espaces (centres, périphéries).",
+    retenir:[["Mondialisation","mise en relation des territoires par des flux"],["FTN","firme transnationale (acteur majeur)"],["Caractère","sélectif → centres / périphéries"],["Débats","inégalités, environnement, souveraineté"]],
+    exos:[
+     {t:"qcm",q:"Lequel est un acteur majeur de la mondialisation ?",opts:["Les firmes transnationales","Les communes rurales isolées","Les phares","Les forêts"],a:0,ex:"Les FTN organisent la production et le commerce mondiaux."},
+     {t:"open",q:"« La mondialisation profite à tous les territoires de la même manière. » Discutez cette affirmation à l'aide d'exemples (≈12 lignes).",
+      expected:"Réfutation nuancée : la mondialisation est sélective. Territoires intégrés (métropoles mondiales, façades maritimes, hubs) vs marges/angles morts. Inégalités Nord/Sud mais aussi à l'intérieur des pays. Exemples : Shanghai, Silicon Valley vs régions enclavées. Esprit critique, pas de réponse binaire."}
+    ]}
+  ]
+ },
+ phys:{
+  "3e":[
+   {id:"phys_3e_ohm",t:"La loi d'Ohm et les circuits",
+    cours:"Dans un circuit électrique, la <b>tension</b> U (en volts, V), l'<b>intensité</b> I (en ampères, A) et la <b>résistance</b> R (en ohms, Ω) sont liées.\n\n<b>Loi d'Ohm (pour une résistance) : U = R × I</b>\n\n• Circuit <b>en série</b> : un seul chemin ; l'intensité est la même partout ; les tensions s'additionnent.\n• Circuit <b>en dérivation</b> (parallèle) : plusieurs branches ; la tension est la même aux bornes des branches ; les intensités s'additionnent.\n\nUnités : 1 V = 1 Ω × 1 A.",
+    retenir:[["Loi d'Ohm","U = R × I"],["Tension U","en volts (V)"],["Intensité I","en ampères (A)"],["Résistance R","en ohms (Ω)"],["En série","même intensité partout"]],
+    exos:[
+     {t:"qcm",q:"R = 20 Ω, I = 0,5 A. Quelle est la tension U ?",opts:["10 V","40 V","20,5 V","0,025 V"],a:0,ex:"U = R×I = 20 × 0,5 = 10 V."},
+     {t:"saisie",q:"U = 12 V, R = 4 Ω. Donne l'intensité I (en A).",a:["3","3 a","3a"],ex:"I = U/R = 12/4 = 3 A."},
+     {t:"qcm",q:"Dans un circuit en série, l'intensité du courant…",opts:["est la même partout","s'additionne","est nulle","double à chaque dipôle"],a:0,ex:"En série, I est identique en tout point."}
+    ]}
+  ],
+  "Terminale":[
+   {id:"phys_term_newton",t:"Les lois de Newton (mécanique)",
+    cours:"La mécanique de Newton relie les <b>forces</b> et le <b>mouvement</b>.\n\n• <b>1re loi (principe d'inertie)</b> : si la somme des forces est nulle, le centre de masse est immobile ou en mouvement rectiligne uniforme (et réciproquement).\n• <b>2e loi (principe fondamental de la dynamique)</b> : <b>ΣF = m·a</b> (la somme des forces = masse × accélération).\n• <b>3e loi (actions réciproques)</b> : si A exerce une force sur B, alors B exerce sur A une force opposée et de même valeur.\n\nMéthode : système, référentiel, bilan des forces, projection, puis ΣF = m·a.",
+    retenir:[["2e loi de Newton","ΣF = m·a"],["Principe d'inertie","ΣF = 0 ⇔ mouvement rectiligne uniforme ou repos"],["3e loi","forces réciproques opposées et égales"],["Démarche","système, référentiel, bilan des forces"]],
+    exos:[
+     {t:"qcm",q:"La deuxième loi de Newton s'écrit :",opts:["ΣF = m·a","E = mc²","U = R·I","ΣF = 0"],a:0,ex:"Principe fondamental de la dynamique : ΣF = m·a."},
+     {t:"saisie",q:"Une masse m = 2 kg subit une force résultante de 10 N. Quelle est l'accélération a (en m/s²) ?",a:["5","5 m/s2","5m/s2"],ex:"a = ΣF/m = 10/2 = 5 m/s²."},
+     {t:"open",q:"Un solide glisse sans frottement sur un plan incliné. Explique, à l'aide des lois de Newton, pourquoi il accélère, et fais le bilan des forces.",
+      expected:"Bilan : poids P (vertical, vers le bas), réaction normale N (perpendiculaire au plan). Sans frottement, la composante du poids le long du plan n'est pas compensée → ΣF ≠ 0 → d'après la 2e loi ΣF = m·a, donc accélération dirigée vers le bas du plan. Projection sur l'axe du plan attendue."}
+    ]}
+  ]
+ },
+ chim:{
+  "3e":[
+   {id:"chim_3e_atome",t:"Atomes, ions et équations",
+    cours:"La matière est faite d'<b>atomes</b> (noyau de protons + neutrons, entouré d'électrons). Un atome est <b>neutre</b> (autant de protons que d'électrons).\n\n• Un <b>ion</b> est un atome (ou groupe d'atomes) qui a gagné ou perdu des électrons : cation (+) s'il en perd, anion (−) s'il en gagne. Ex : Na⁺, Cl⁻.\n• <b>Conservation de la matière</b> : lors d'une réaction, les atomes se réorganisent mais ne disparaissent pas → on <b>équilibre</b> l'équation (mêmes nombres d'atomes de chaque côté).\nEx : 2 H₂ + O₂ → 2 H₂O.",
+    retenir:[["Atome neutre","autant de protons que d'électrons"],["Cation","ion positif (a perdu des électrons)"],["Anion","ion négatif (a gagné des électrons)"],["Conservation","mêmes atomes avant/après → équilibrer"],["Synthèse de l'eau","2 H₂ + O₂ → 2 H₂O"]],
+    exos:[
+     {t:"qcm",q:"Un cation est un ion…",opts:["négatif","positif","neutre","sans noyau"],a:1,ex:"Cation = ion positif (il a perdu des électrons)."},
+     {t:"qcm",q:"Quelle équation de la synthèse de l'eau est correctement équilibrée ?",opts:["H₂ + O₂ → H₂O","2 H₂ + O₂ → 2 H₂O","H₂ + O → H₂O","2 H + O₂ → H₂O"],a:1,ex:"2 H₂ + O₂ → 2 H₂O : 4 H et 2 O de chaque côté."},
+     {t:"saisie",q:"Quel est l'ion sodium ? (écris son symbole, ex : X+ ou X-)",a:["na+","na +"],ex:"L'ion sodium est Na⁺ (il a perdu un électron)."}
+    ]}
+  ],
+  "Terminale":[
+   {id:"chim_term_ph",t:"Acides, bases et pH",
+    cours:"Le <b>pH</b> mesure l'acidité d'une solution aqueuse.\n\n<b>pH = −log([H₃O⁺])</b> (avec [H₃O⁺] en mol/L) ; inversement [H₃O⁺] = 10^(−pH).\n\n• pH < 7 : solution <b>acide</b> ; pH = 7 : neutre ; pH > 7 : <b>basique</b> (à 25 °C).\n• Un <b>acide</b> cède un proton H⁺ (au sens de Brønsted) ; une <b>base</b> en capte un.\n• Couple acide/base : AH/A⁻. Une réaction acido-basique est un transfert de proton.",
+    retenir:[["Définition du pH","pH = −log([H₃O⁺])"],["[H₃O⁺]","= 10^(−pH) mol/L"],["Acide (Brønsted)","espèce qui cède un proton H⁺"],["Base (Brønsted)","espèce qui capte un proton H⁺"],["Solution acide","pH < 7 (à 25 °C)"]],
+    exos:[
+     {t:"qcm",q:"Une solution de pH = 3 est :",opts:["basique","neutre","acide","impossible"],a:2,ex:"pH < 7 → solution acide."},
+     {t:"saisie",q:"Si [H₃O⁺] = 10⁻² mol/L, quel est le pH ? (un nombre)",a:["2"],ex:"pH = −log(10⁻²) = 2."},
+     {t:"open",q:"Définis un acide et une base selon Brønsted, puis explique ce qu'est une réaction acido-basique en t'appuyant sur un exemple de couple acide/base.",
+      expected:"Acide = donneur de proton H⁺ ; base = accepteur de proton. Réaction acido-basique = transfert de H⁺ d'un acide vers une base. Exemple de couples (ex. CH₃COOH/CH₃COO⁻, NH₄⁺/NH₃) et écriture de l'échange de proton. Rigueur sur la notion de couple."}
+    ]}
+  ]
+ },
+ svt:{
+  "3e":[
+   {id:"svt_3e_adn",t:"ADN, gènes et chromosomes",
+    cours:"L'information génétique est portée par l'<b>ADN</b>, contenu dans le <b>noyau</b> des cellules.\n\n• L'ADN est organisé en <b>chromosomes</b>. L'espèce humaine a <b>46 chromosomes</b> (23 paires) dans chaque cellule.\n• Un <b>gène</b> est une portion d'ADN qui détermine un caractère héréditaire. Un gène peut exister sous plusieurs versions : les <b>allèles</b>.\n• Les cellules reproductrices (gamètes) ne contiennent que <b>23 chromosomes</b> : à la fécondation, on retrouve 46 (moitié de la mère, moitié du père) → brassage et unicité des individus.",
+    retenir:[["Support de l'information génétique","l'ADN (dans le noyau)"],["Chromosomes (espèce humaine)","46 (23 paires)"],["Gène","portion d'ADN = un caractère"],["Allèles","versions différentes d'un gène"],["Gamètes","23 chromosomes"]],
+    exos:[
+     {t:"qcm",q:"Combien de chromosomes possède une cellule humaine (hors gamète) ?",opts:["23","46","2","92"],a:1,ex:"46 chromosomes, soit 23 paires."},
+     {t:"saisie",q:"Comment appelle-t-on les différentes versions d'un même gène ?",a:["allèles","des allèles","alleles","allele","allèle"],ex:"Ce sont les allèles."},
+     {t:"qcm",q:"Où se trouve l'ADN dans la cellule ?",opts:["Dans la membrane","Dans le noyau","Dans le cytoplasme uniquement","À l'extérieur"],a:1,ex:"L'ADN est dans le noyau (sous forme de chromosomes)."}
+    ]}
+  ],
+  "Terminale":[
+   {id:"svt_term_glyc",t:"La régulation de la glycémie",
+    cours:"La <b>glycémie</b> est la concentration de glucose dans le sang (≈ 1 g/L à jeun). Elle est maintenue stable (homéostasie) grâce au <b>pancréas</b> et au <b>foie</b>.\n\n• Si la glycémie <b>monte</b> (après un repas) : le pancréas libère de l'<b>insuline</b> → le foie et les cellules stockent le glucose (glycogène) → la glycémie baisse. L'insuline est <b>hypoglycémiante</b>.\n• Si la glycémie <b>baisse</b> : le pancréas libère du <b>glucagon</b> → le foie libère du glucose → la glycémie remonte. Le glucagon est <b>hyperglycémiant</b>.\n\nUn dérèglement (manque/inefficacité de l'insuline) provoque le <b>diabète</b>.",
+    retenir:[["Glycémie normale (à jeun)","≈ 1 g/L"],["Insuline","hypoglycémiante (fait baisser)"],["Glucagon","hyperglycémiant (fait monter)"],["Organe régulateur","le pancréas (foie = stockage)"],["Diabète","défaut d'insuline / d'action de l'insuline"]],
+    exos:[
+     {t:"qcm",q:"Quelle hormone fait BAISSER la glycémie ?",opts:["Le glucagon","L'insuline","L'adrénaline","La testostérone"],a:1,ex:"L'insuline est hypoglycémiante."},
+     {t:"saisie",q:"Quel organe produit l'insuline et le glucagon ?",a:["pancréas","le pancréas","pancreas"],ex:"Le pancréas (cellules des îlots de Langerhans)."},
+     {t:"open",q:"Explique comment l'organisme rétablit une glycémie normale après un repas riche en sucres. Décris le mécanisme (organes, hormones, effets).",
+      expected:"Hausse de glycémie détectée par le pancréas → sécrétion d'insuline → captage et stockage du glucose par le foie (glycogénogenèse) et les cellules (muscles, tissu adipeux) → retour à ≈1 g/L. Notion de boucle de régulation / rétrocontrôle attendue."}
+    ]}
+  ]
+ }
+};
+/* Construit le programme depuis le contenu généré (cours.js → window.GENERATED_CELLS) ; sinon socle intégré. */
+function normExo(e){
+  const o={t:e.t,q:e.q,notion:e.notion||""};
+  if(e.t==="qcm"){ o.opts=e.opts||[]; o.a=(typeof e.correct==="number"?e.correct:(typeof e.a==="number"?e.a:0)); o.ex=e.ex||""; }
+  else if(e.t==="saisie"){ o.a=e.answers||e.a||[]; o.ex=e.ex||""; }
+  else if(e.t==="dictee"){ o.text=e.text||""; o.ex=e.ex||""; }
+  else { o.expected=e.expected||""; }
+  return o;
+}
+function buildCurriculum(cells){
+  const C={};
+  cells.forEach(cell=>{
+    if(!cell||!cell.subject||!cell.level||!cell.lessons)return;
+    const arr=(C[cell.subject]=C[cell.subject]||{})[cell.level]=[];
+    cell.lessons.forEach((les,i)=>{
+      arr.push({ id:cell.subject+"_"+cell.level.replace(/[^a-z0-9]/gi,"")+"_"+i,
+        t:les.t||"Leçon", cours:les.cours||"", methodo:les.methodo||"",
+        retenir:(les.retenir||[]).filter(r=>Array.isArray(r)&&r.length>=2),
+        exos:(les.exos||[]).map(normExo) });
+    });
+  });
+  return C;
+}
+function mergeCurriculum(seed,cells){
+  const C={}; for(const s in seed){ C[s]={}; for(const lv in seed[s]) C[s][lv]=seed[s][lv].slice(); }
+  if(cells&&cells.length){ const gen=buildCurriculum(cells); for(const s in gen){ C[s]=C[s]||{}; for(const lv in gen[s]) C[s][lv]=gen[s][lv]; } } // le généré complète/remplace par (matière,niveau)
+  return C;
+}
+const CURRICULUM = mergeCurriculum(SEED_CURRICULUM, (typeof window!=="undefined" && window.GENERATED_CELLS) ? window.GENERATED_CELLS : null);
+
+/* ============================ État ============================ */
+const STORE="reviz_data_v1";
+/* Clé Gemini intégrée par défaut. ⚠ Visible par toute personne ayant accès au fichier — utiliser une clé GRATUITE (sans facturation). Laisser "" pour saisie manuelle uniquement. */
+const GEMINI_KEY_BUILTIN="AQ.Ab8RN6ISkaol65-d66qg0QiIV2e1gUY7nyC6LtuU_aGo-9h7Lg";
+function effectiveGeminiKey(){ try{ return ((data.settings.geminiKey||"").trim())||GEMINI_KEY_BUILTIN; }catch(e){ return GEMINI_KEY_BUILTIN; } }
+let data=load();
+let curSubject=data.settings.lastSubject||"math";
+let curLevel=data.settings.lastLevel||"3e";
+function load(){ try{const r=localStorage.getItem(STORE);if(r)return JSON.parse(r);}catch(e){} return {settings:{theme:"dark"},prog:{},srs:{},exoSrs:{},notions:{},game:{xp:0,streak:0,todayDay:null,lastDay:null}}; }
+/* Révision espacée au niveau de CHAQUE exercice (le moteur de mémorisation) */
+function exoKey(lessonId,idx){ return lessonId+"#"+idx; }
+function exoSrs(id){ return data.exoSrs[id]||(data.exoSrs[id]={ease:2.5,interval:0,due:0,reps:0,lapses:0}); }
+function scheduleExo(id,ok){ if(!data.exoSrs)data.exoSrs={}; const s=exoSrs(id), t=todayNum();
+  if(!ok){ s.reps=0; s.interval=0; s.lapses=(s.lapses||0)+1; s.due=t; }
+  else { s.reps=(s.reps||0)+1; s.ease=Math.min(2.8,Math.max(1.3,s.ease+0.05)); s.interval = s.reps===1?1:(s.reps===2?3:Math.round((s.interval||1)*s.ease)); s.due=t+s.interval; } }
+function dueExos(subjectFilter){ const t=todayNum(), out=[];
+  for(const sj in CURRICULUM){ if(subjectFilter && sj!==subjectFilter) continue;
+    for(const lv in CURRICULUM[sj]) CURRICULUM[sj][lv].forEach(les=>{ les.exos.forEach((ex,i)=>{ if(ex.t==="open")return;
+      const sr=data.exoSrs[exoKey(les.id,i)]; if(sr && (sr.due||0)<=t) out.push({ex:ex,lesson:les,subject:sj,exoId:exoKey(les.id,i)}); }); });
+  } return out; }
+function dueExoCount(subjectFilter){ return dueExos(subjectFilter).length; }
+/* Pavé de symboles pour saisir les maths/sciences facilement */
+function insertAtCursor(input,text){ const s=input.selectionStart==null?input.value.length:input.selectionStart, e=input.selectionEnd==null?input.value.length:input.selectionEnd, v=input.value; input.value=v.slice(0,s)+text+v.slice(e); input.focus(); const p=s+text.length; try{input.setSelectionRange(p,p);}catch(_){} }
+function makeKeypad(input){ const keys=["√","²","³","×","÷","π","≤","≥","≠","±","°","π","(",")","/"]; const d=document.createElement("div"); d.className="keypad";
+  ["√","²","³","×","÷","π","≤","≥","≠","±","°","(",")","/"].forEach(k=>{ const b=document.createElement("button"); b.type="button"; b.className="keycap"; b.textContent=k; b.onmousedown=ev=>ev.preventDefault(); b.onclick=()=>insertAtCursor(input,k); d.appendChild(b); }); return d; }
+const MATHISH=["math","phys","chim"];
+/* Suivi des points faibles par notion */
+function recordNotion(notion,subject,ok){ if(!notion)return; if(!data.notions)data.notions={}; const k=subject+"::"+notion; const n=data.notions[k]||(data.notions[k]={notion:notion,subject:subject,seen:0,wrong:0}); n.seen++; if(!ok)n.wrong++; }
+function save(){ localStorage.setItem(STORE,JSON.stringify(data)); }
+function todayNum(){return Math.floor(Date.now()/86400000);}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function toast(m){const e=document.getElementById("toast");e.textContent=m;e.classList.add("show");clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.remove("show"),2400);}
+
+/* normalisation pour la saisie (tolérante) */
+function norm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g,"").replace(/[,;]/g,".").replace(/[×x*]/g,"").replace(/[·•]/g,"").trim();}
+function answerOk(input,answers){const i=norm(input);if(!i)return false;return answers.some(a=>norm(a)===i || (i.length>1&&norm(a).replace(/[^a-z0-9.\/+\-]/g,"")===i.replace(/[^a-z0-9.\/+\-]/g,"")));}
+
+/* ============================ Gamification ============================ */
+function addXp(n){const g=data.game;const t=todayNum();if(g.todayDay!==t){if(g.lastDay===t-1)g.streak=(g.streak||0)+1;else g.streak=1;g.todayDay=t;g.lastDay=t;}g.xp=(g.xp||0)+n;save();updateHud();}
+function updateHud(){document.getElementById("hudXp").textContent="⭐ "+(data.game.xp||0);document.getElementById("hudStreak").textContent="🔥 "+(data.game.streak||0);}
+
+/* ============================ Accès programme ============================ */
+function lessonsOf(subj,lvl){return (CURRICULUM[subj]&&CURRICULUM[subj][lvl])||[];}
+function lessonById(id){for(const s in CURRICULUM)for(const l in CURRICULUM[s])for(const les of CURRICULUM[s][l])if(les.id===id)return les;return null;}
+function prog(id){return data.prog[id]||(data.prog[id]={done:0,total:0,best:0});}
+
+/* ============================ Navigation ============================ */
+const views=["lessons","train","exam","progress","settings"];
+function show(v){views.forEach(x=>document.getElementById("view-"+x).classList.toggle("hidden",x!==v));document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
+  if(v==="lessons")renderLessons();if(v==="train")renderTrain();if(v==="exam")renderExam();if(v==="progress")renderProgress();if(v==="settings")renderSettings();}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>show(b.dataset.view));
+
+/* ---- Sélecteurs matière / niveau ---- */
+function renderSubjects(){const c=document.getElementById("subjects");c.innerHTML="";SUBJECTS.forEach(s=>{const b=document.createElement("button");b.className="subjbtn"+(s.id===curSubject?" on":"");if(s.id===curSubject)b.style.background=s.color;b.innerHTML=`<span class="si">${s.icon}</span>${esc(s.name)}`;b.onclick=()=>{curSubject=s.id;data.settings.lastSubject=s.id;ensureLevel();save();renderSubjects();refreshPick();show("lessons");};c.appendChild(b);});}
+function fillLevels(){const sel=document.getElementById("levelSel");sel.innerHTML="";LEVELS.forEach(l=>{const o=document.createElement("option");o.value=l;o.textContent=l;sel.appendChild(o);});sel.value=curLevel;}
+function ensureLevel(){ if(lessonsOf(curSubject,curLevel).length===0){ const lv=LEVELS.find(l=>lessonsOf(curSubject,l).length>0); if(lv)curLevel=lv; } }
+function refreshPick(){fillLevels();const subj=SUBJECTS.find(s=>s.id===curSubject);const n=lessonsOf(curSubject,curLevel).length;document.getElementById("pickInfo").textContent=`${subj.icon} ${subj.name} · ${curLevel} — ${n} leçon${n>1?"s":""} disponible${n>1?"s":""}`;}
+document.getElementById("levelSel").onchange=e=>{curLevel=e.target.value;data.settings.lastLevel=curLevel;save();refreshPick();const cur=views.find(v=>!document.getElementById("view-"+v).classList.contains("hidden"));show(cur||"lessons");};
+
+/* ============================ Vue Leçons ============================ */
+/* ============================ Motivation : objectif & maîtrise ============================ */
+const GOALS=[
+  {id:"exceller",emoji:"🌟",label:"Donner le meilleur de moi-même",target:80,line:"Vise l'excellence, pas seulement la moyenne."},
+  {id:"mention-ab",emoji:"🥉",label:"Mention Assez Bien au diplôme",target:72,line:"Objectif ≥ 12/20 : c'est à ta portée."},
+  {id:"mention-b",emoji:"🥈",label:"Mention Bien au diplôme",target:80,line:"Objectif ≥ 14/20 : la régularité fait la différence."},
+  {id:"mention-tb",emoji:"🥇",label:"Mention Très Bien au diplôme",target:88,line:"Objectif ≥ 16/20 : entre dans la cour des grands."},
+  {id:"prepa",emoji:"🎓",label:"Intégrer une prépa (CPGE)",target:90,line:"Les meilleures classes recrutent les profils solides et constants."},
+  {id:"medecine",emoji:"⚕️",label:"Réussir médecine (PASS/LAS)",target:92,line:"Concours très sélectif : vise la maîtrise quasi parfaite."},
+  {id:"ingenieur",emoji:"⚙️",label:"Devenir ingénieur (grande école)",target:88,line:"Maths et sciences au sommet, rigueur de tous les jours."},
+  {id:"sciencespo",emoji:"🏛️",label:"Sciences Po / grande école",target:88,line:"Culture, méthode et régularité te démarqueront."}
+];
+function goalById(id){return GOALS.find(g=>g.id===id)||null;}
+function masteryStats(subjectFilter){
+  let seen=0,wrong=0;
+  Object.values(data.notions||{}).forEach(n=>{ if(!subjectFilter||n.subject===subjectFilter){ seen+=(n.seen||0); wrong+=(n.wrong||0); } });
+  const acc=seen?(seen-wrong)/seen:0;
+  let bestSum=0,bestCount=0;
+  for(const s in CURRICULUM){ if(subjectFilter&&s!==subjectFilter)continue; for(const lv in CURRICULUM[s])CURRICULUM[s][lv].forEach(les=>{const p=data.prog[les.id];if(p&&p.best){bestSum+=p.best;bestCount++;}}); }
+  const noteScore=bestCount?(bestSum/bestCount)/20:0;
+  let mastery;
+  if(seen<3&&bestCount===0) mastery=null;
+  else if(bestCount===0) mastery=Math.round(acc*100);
+  else if(seen<3) mastery=Math.round(noteScore*100);
+  else mastery=Math.round((acc*0.6+noteScore*0.4)*100);
+  return {mastery,seen,acc:Math.round(acc*100),avg:bestCount?Math.round(bestSum/bestCount):null};
+}
+function masteryLevel(m){ if(m==null)return{name:"À évaluer",color:"#94a3b8"}; if(m<30)return{name:"Débutant",color:"#94a3b8"}; if(m<50)return{name:"En progrès",color:"#fb7185"}; if(m<70)return{name:"Confirmé",color:"var(--warn)"}; if(m<85)return{name:"Avancé",color:"#38bdf8"}; return{name:"Expert",color:"var(--good)"}; }
+function goalBannerHTML(){
+  const g=goalById(data.settings.goal); if(!g)return "";
+  const st=masteryStats(null); const m=st.mastery; const lv=masteryLevel(m);
+  const pct=m==null?0:Math.min(100,Math.round(m/g.target*100));
+  const reached=m!=null&&m>=g.target;
+  return `<div class="card" style="background:linear-gradient(135deg,#6d28d9,#4338ca);color:#fff">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div><div style="font-size:1.05rem;font-weight:700">${g.emoji} Objectif : ${esc(g.label)}</div>
+      <div style="opacity:.9;font-size:.85rem;margin-top:2px">${reached?"🎉 Objectif de maîtrise atteint — maintiens le cap !":esc(g.line)}</div></div>
+      <div style="text-align:right"><div style="font-size:1.5rem;font-weight:800">${m==null?"—":m+"%"}</div><div style="opacity:.9;font-size:.75rem">maîtrise · ${lv.name}</div></div>
+    </div>
+    <div class="progress" style="margin-top:10px;background:rgba(255,255,255,.25)"><div style="width:${pct}%;background:#fff"></div></div>
+    <div style="opacity:.85;font-size:.75rem;margin-top:4px">Cible : ${g.target}% de maîtrise${m!=null&&!reached?` — encore ${g.target-m} point(s)`:""}</div>
+  </div>`;
+}
+function appendHTML(root,html){ if(!html)return; const w=document.createElement("div"); w.innerHTML=html; if(w.firstElementChild)root.appendChild(w.firstElementChild); }
+function renderLessons(){
+  const root=document.getElementById("view-lessons");root.innerHTML="";
+  const list=lessonsOf(curSubject,curLevel);
+  if(list.length===0){root.innerHTML=`<div class="card muted center">Pas encore de leçon pour ${SUBJECTS.find(s=>s.id===curSubject).name} en ${curLevel}.<br><span class="small">Choisissez une autre matière/un autre niveau — le contenu s'enrichit progressivement.</span></div>`;return;}
+  // Bannières : compte à rebours d'examen + révision du jour
+  const ed=data.settings.examDate;
+  if(ed){ const days=Math.ceil((new Date(ed)-new Date())/86400000);
+    if(days>=0){ const cc=document.createElement("div");cc.className="card countdown center";
+      cc.innerHTML=`<div class="big">🎯 ${days===0?"C'est le jour J !":"J − "+days}</div><div style="opacity:.92;font-size:.9rem">${days===0?"Donne le meilleur de toi !":(days+" jour"+(days>1?"s":"")+" avant ton examen — chaque révision compte ! 💪")}</div>`; root.appendChild(cc); } }
+  appendHTML(root,goalBannerHTML());
+  const due=dueExoCount();
+  if(due>0){ const db=document.createElement("div");db.className="card";
+    db.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b>🔁 ${due} exercice(s) à réviser aujourd'hui</b><div class="muted small">Revoir au bon moment = mémoire qui dure.</div></div><button class="btn" id="goRevise">Réviser</button></div>`;
+    root.appendChild(db); const gr=document.getElementById("goRevise"); if(gr) gr.onclick=()=>show("train"); }
+  const head=document.createElement("div");head.className="card";head.innerHTML=`<h2 style="margin:0 0 4px">${SUBJECTS.find(s=>s.id===curSubject).icon} ${SUBJECTS.find(s=>s.id===curSubject).name} — ${curLevel}</h2><div class="muted small">Choisis une leçon : lis le cours, mémorise « à retenir », puis fais les exercices.</div>`;root.appendChild(head);
+  list.forEach(les=>{
+    const p=prog(les.id);const pct=p.total?Math.round(p.done/p.total*100):0;
+    const row=document.createElement("div");row.className="lessonrow";
+    row.innerHTML=`<span style="font-size:1.4rem">📘</span><div class="ln">${esc(les.t)}<div class="lm">${les.exos.length} exercice(s) · ${les.retenir.length} à retenir${p.best?` · meilleure note ${p.best}/20`:""}</div></div><div class="lbar"><div style="width:${pct}%"></div></div>`;
+    row.onclick=()=>openLesson(les.id);root.appendChild(row);
+  });
+}
+let curLesson=null;
+function openLesson(id){
+  curLesson=lessonById(id);const les=curLesson;
+  const root=document.getElementById("view-lessons");root.innerHTML="";
+  const bc=document.createElement("div");bc.className="breadcrumb";bc.textContent="← Retour aux leçons";bc.onclick=()=>renderLessons();root.appendChild(bc);
+  const card=document.createElement("div");card.className="card";
+  let html=`<h2 style="margin-top:0">${esc(les.t)}</h2><div class="cours">${les.cours}</div>`;
+  if(les.methodo) html+=`<div class="retenir" style="border-left-color:var(--accent)"><b>📐 Méthode</b><div class="cours" style="margin-top:6px">${les.methodo}</div></div>`;
+  if(les.retenir&&les.retenir.length) html+=`<div class="retenir"><b>📌 À retenir</b>${les.retenir.map(r=>`<div class="ri"><b>${esc(r[0])}</b> → ${esc(r[1])}</div>`).join("")}</div>`;
+  html+=`<div class="row"><button class="btn" id="btnExos">✍️ Faire les exercices</button><button class="btn ghost" id="btnTrain">🎯 Réviser les formules</button></div>`;
+  card.innerHTML=html;root.appendChild(card);
+  document.getElementById("btnTrain").onclick=()=>{show("train");startTrain(les.id);};
+  document.getElementById("btnExos").onclick=()=>renderExos(les,root);
+}
+/* ---- Dictée : synthèse vocale + correction mot à mot ---- */
+function speakFr(text,rate){
+  try{
+    if(!("speechSynthesis" in window)){ toast("La lecture audio n'est pas disponible sur ce navigateur."); return; }
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text); u.lang="fr-FR"; u.rate=rate||1;
+    const vs=speechSynthesis.getVoices(); const v=vs.find(x=>/fr[-_]?FR/i.test(x.lang))||vs.find(x=>/^fr/i.test(x.lang)); if(v)u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){ toast("Lecture audio impossible."); }
+}
+function dnorm(w){ return String(w).toLowerCase().normalize("NFC").replace(/[.,;:!?«»"'()’]/g,"").trim(); }
+function dicteeCompare(student,correct){
+  const cs=String(correct).trim().split(/\s+/).filter(Boolean), ss=String(student).trim().split(/\s+/).filter(Boolean);
+  const n=cs.length,m=ss.length; const dp=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let a=n-1;a>=0;a--)for(let b=m-1;b>=0;b--){ dp[a][b]= dnorm(cs[a])===dnorm(ss[b]) ? dp[a+1][b+1]+1 : Math.max(dp[a+1][b],dp[a][b+1]); }
+  const matched=new Array(n).fill(false); let a=0,b=0;
+  while(a<n&&b<m){ if(dnorm(cs[a])===dnorm(ss[b])){matched[a]=true;a++;b++;} else if(dp[a+1][b]>=dp[a][b+1])a++; else b++; }
+  const correctCount=matched.filter(Boolean).length;
+  const html=cs.map((w,idx)=>matched[idx]?`<span style="color:var(--good)">${esc(w)}</span>`:`<span style="color:var(--bad);text-decoration:underline">${esc(w)}</span>`).join(" ");
+  return {correct:correctCount,total:n,score:n?correctCount/n:0,html};
+}
+/* ---- Exercices d'une leçon ---- */
+function renderExos(les,root){
+  const wrap=document.createElement("div");wrap.className="card";
+  wrap.innerHTML=`<h3 style="margin-top:0">✍️ Exercices — ${esc(les.t)}</h3><div class="muted small" style="margin-bottom:8px">Réponds, puis vérifie. Les questions ouvertes peuvent être corrigées par l'IA (Réglages).</div>`;
+  root.appendChild(wrap);
+  let answered=0;const totalGrade=les.exos.length;let gained=0;
+  les.exos.forEach((ex,i)=>{
+    const box=document.createElement("div");box.className="exo";
+    const tag=ex.t==="qcm"?'<span class="tag qcm">QCM</span>':ex.t==="saisie"?'<span class="tag saisie">Saisie</span>':ex.t==="dictee"?'<span class="tag saisie">🔊 Dictée</span>':'<span class="tag open">Question ouverte</span>';
+    box.innerHTML=`${tag}<div class="q">${i+1}. ${esc(ex.q)}</div>`;
+    if(ex.t==="qcm"){
+      const opts=document.createElement("div");
+      ex.opts.forEach((o,oi)=>{const b=document.createElement("button");b.className="opt";b.textContent=o;b.onclick=()=>{
+        if(box.querySelector(".opt.correct,.opt.wrong"))return;const ok=oi===ex.a;b.classList.add(ok?"correct":"wrong");
+        if(!ok)[...opts.children].forEach((x,xi)=>{if(xi===ex.a)x.classList.add("correct");});
+        const fb=document.createElement("div");fb.className="fb "+(ok?"ok":"no");fb.textContent=(ok?"✓ Correct. ":"✗ ")+(ex.ex||"");box.appendChild(fb);
+        answered++;if(ok){gained++;addXp(5);}recordNotion(ex.notion,curSubject,ok);scheduleExo(exoKey(les.id,i),ok);save();
+      };opts.appendChild(b);});
+      box.appendChild(opts);
+    } else if(ex.t==="saisie"){
+      const inp=document.createElement("input");inp.placeholder="Ta réponse…";
+      const btn=document.createElement("button");btn.className="btn sm";btn.textContent="Vérifier";btn.style.marginTop="8px";
+      const fb=document.createElement("div");fb.className="fb";
+      const check=()=>{if(fb.dataset.done)return;const ok=answerOk(inp.value,ex.a);fb.dataset.done="1";fb.className="fb "+(ok?"ok":"no");fb.innerHTML=(ok?"✓ Correct. ":`✗ Réponse attendue : <b>${esc(ex.a[0])}</b>. `)+(ex.ex||"");answered++;if(ok){gained++;addXp(5);}recordNotion(ex.notion,curSubject,ok);scheduleExo(exoKey(les.id,i),ok);save();};
+      btn.onclick=check;inp.onkeydown=e=>{if(e.key==="Enter")check();};
+      box.appendChild(inp); if(MATHISH.indexOf(curSubject)>=0) box.appendChild(makeKeypad(inp)); box.appendChild(btn);box.appendChild(fb);
+    } else if(ex.t==="dictee"){
+      const sentence=ex.text||"";
+      const ctrl=document.createElement("div");ctrl.className="row";ctrl.style.marginTop="6px";
+      const playBtn=document.createElement("button");playBtn.type="button";playBtn.className="btn sm";playBtn.textContent="🔊 Écouter";
+      const slowBtn=document.createElement("button");slowBtn.type="button";slowBtn.className="btn ghost sm";slowBtn.textContent="🐢 Lentement";
+      playBtn.onclick=()=>speakFr(sentence,1); slowBtn.onclick=()=>speakFr(sentence,0.6);
+      ctrl.appendChild(playBtn);ctrl.appendChild(slowBtn);box.appendChild(ctrl);
+      const ta=document.createElement("textarea");ta.placeholder="Écris ici la phrase que tu entends…";ta.style.cssText="width:100%;box-sizing:border-box;margin-top:8px";
+      const btn=document.createElement("button");btn.className="btn sm";btn.textContent="Vérifier";btn.style.marginTop="8px";
+      const fb=document.createElement("div");fb.className="fb";
+      const check=()=>{ if(fb.dataset.done)return; if(!ta.value.trim()){toast("Écris d'abord la phrase.");return;} const r=dicteeCompare(ta.value,sentence); fb.dataset.done="1"; const ok=r.score>=0.9; fb.className="fb "+(ok?"ok":"no"); fb.innerHTML=`${ok?"✓ Bravo !":"📝 À revoir"} — <b>${r.correct}/${r.total}</b> mots corrects.<div style="margin-top:6px"><b>Correction :</b> ${r.html}</div>${ex.ex?`<div class="muted small" style="margin-top:6px">💡 ${esc(ex.ex)}</div>`:""}`; answered++; if(ok){gained++;} addXp(ok?5:1); save(); };
+      btn.onclick=check;
+      box.appendChild(ta);box.appendChild(btn);box.appendChild(fb);
+    } else { // open
+      const ta=document.createElement("textarea");ta.placeholder="Rédige ta réponse ici…";
+      const btn=document.createElement("button");btn.className="btn";btn.textContent="🧠 Évaluer ma réponse";btn.style.marginTop="8px";
+      const fb=document.createElement("div");fb.className="fb";
+      btn.onclick=()=>evaluateOpen(ex,ta.value,fb,btn);
+      box.appendChild(ta);box.appendChild(btn);box.appendChild(fb);
+    }
+    // 💡 bouton d'aide (explique la règle / l'erreur)
+    const helpBtn=document.createElement("button");helpBtn.className="btn ghost sm";helpBtn.textContent="💡 Aide";helpBtn.style.marginTop="8px";
+    const helpHost=document.createElement("div");helpHost.style.marginTop="8px";
+    helpBtn.onclick=()=>showExoHelp(ex,les,helpHost,helpBtn);
+    box.appendChild(document.createElement("br"));box.appendChild(helpBtn);box.appendChild(helpHost);
+    wrap.appendChild(box);
+  });
+  // maj progression simple
+  const p=prog(les.id);p.total=Math.max(p.total,les.exos.filter(e=>e.t!=="open"&&e.t!=="dictee").length);save();
+  wrap.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ============================ Bouton d'aide (tuto / règle) ============================ */
+function helpFallback(ex,les){
+  let h=`<div class="corrige">💡 <b>Aide — la règle / la méthode</b><br>`;
+  if(les&&les.retenir&&les.retenir.length){ h+=les.retenir.slice(0,5).map(r=>`• <b>${esc(r[0])}</b> → ${esc(r[1])}`).join("<br>"); }
+  else { h+=esc(ex.ex||"Relis le cours ci-dessus, la réponse s'y trouve."); }
+  h+=`<br><span class="muted small" style="display:block;margin-top:6px">Astuce : active l'IA (⚙️ Réglages → clé Gemini) pour une explication personnalisée, adaptée à ton erreur.</span></div>`;
+  return h;
+}
+async function showExoHelp(ex,les,host,btn){
+  if(host.dataset.busy)return;
+  const hasKey=!!effectiveGeminiKey();
+  if(hasKey){
+    host.dataset.busy="1";host.innerHTML='<span class="muted">💡 Explication en cours…</span>';if(btn)btn.disabled=true;
+    try{
+      const subj=SUBJECTS.find(s=>s.id===curSubject).name;
+      const prompt=`Tu es un professeur de ${subj}, niveau ${curLevel} (système scolaire français), très pédagogue et bienveillant. Un élève bloque sur cet exercice :\n"${ex.q}"\nExplique-lui SIMPLEMENT et BRIÈVEMENT (4 à 6 lignes maximum) la RÈGLE ou la MÉTHODE à utiliser, avec un indice concret et un exemple si utile, mais SANS donner directement la réponse finale. Termine par un court conseil pour ne plus se tromper.`;
+      const out=await geminiGenerate(prompt);
+      host.innerHTML=`<div class="corrige">💡 <b>Aide du prof</b><br>${esc(out).replace(/\n/g,"<br>")}</div>`;
+    }catch(e){ host.innerHTML=helpFallback(ex,les); }
+    host.dataset.busy="";if(btn)btn.disabled=false;
+  } else {
+    host.innerHTML=helpFallback(ex,les);
+  }
+}
+
+/* ============================ Évaluation des questions ouvertes ============================ */
+function buildEvalPrompt(ex,answer){
+  const subj=SUBJECTS.find(s=>s.id===curSubject).name;
+  return `Tu es un professeur de ${subj} très expérimenté du système scolaire français. Tu corriges la copie d'un élève de niveau ${curLevel} avec exigence ET bienveillance, en valorisant l'esprit critique, l'analyse et la qualité de la rédaction.
+QUESTION : ${ex.q}
+ÉLÉMENTS DE CORRECTION ATTENDUS : ${ex.expected||"(à apprécier selon le niveau)"}
+RÉPONSE DE L'ÉLÈVE : """${answer}"""
+Corrige la copie. Commence IMPÉRATIVEMENT par une première ligne au format exact : NOTE: X/20
+Puis fournis :
+✅ Points forts (concrets, en citant la copie)
+⚠️ À améliorer (précis)
+✍️ Conseil de méthode / rédaction
+Une phrase d'encouragement finale. Reste adapté au niveau ${curLevel}.`;
+}
+async function geminiGenerate(prompt){
+  const key=effectiveGeminiKey();
+  const model=data.settings.geminiModel||"gemini-2.5-flash";
+  if(!key)throw new Error("NO_KEY");
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+  const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+  if(!r.ok){const t=await r.text();throw new Error("HTTP "+r.status+" — "+t.slice(0,160));}
+  const j=await r.json();
+  const txt=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts[0].text;
+  if(!txt)throw new Error("Réponse vide de l'IA");
+  return txt;
+}
+async function evaluateOpen(ex,answer,fb,btn){
+  if(!answer||answer.trim().length<5){fb.className="fb no";fb.textContent="Écris d'abord une réponse un peu développée.";return;}
+  const hasKey=!!effectiveGeminiKey();
+  if(hasKey){
+    fb.className="fb";fb.innerHTML='<span class="muted">🧠 Correction par l\'IA en cours…</span>';btn.disabled=true;
+    try{
+      const out=await geminiGenerate(buildEvalPrompt(ex,answer));
+      const m=out.match(/NOTE\s*:\s*(\d{1,2})\s*\/\s*20/i);
+      let head="";if(m){const note=parseInt(m[1],10);head=`<div class="note20" style="color:${note>=10?'var(--good)':'var(--warn)'}">${note}/20</div>`;recordOpenScore(note);}
+      fb.className="fb";fb.innerHTML=head+`<div class="corrige">${esc(out.replace(/^NOTE\s*:\s*\d{1,2}\s*\/\s*20\s*/i,"")).replace(/\n/g,"<br>")}</div>`;
+    }catch(e){
+      const msg=String(e.message||e);
+      fb.className="fb no";
+      fb.innerHTML=(msg==="NO_KEY"?"":`⚠ ${esc(msg)}<br>`)+showCorrige(ex);
+      bindSelfEval(ex,fb);
+    }
+    btn.disabled=false;
+  } else {
+    fb.className="fb";
+    fb.innerHTML=`<div class="muted small">Pas de clé IA configurée — voici les <b>éléments de correction</b> pour t'auto-évaluer (active l'IA dans ⚙️ Réglages pour une vraie note).</div>`+showCorrige(ex);
+    bindSelfEval(ex,fb);
+  }
+}
+function showCorrige(ex){return `<div class="corrige"><b>📋 Éléments attendus :</b><br>${esc(ex.expected||"").replace(/\n/g,"<br>")}</div><div class="small muted" style="margin-top:8px">Auto-évalue ta réponse :</div><div class="row" id="selfeval" style="margin-top:6px"></div>`;}
+function bindSelfEval(ex,fb){
+  const box=fb.querySelector("#selfeval");if(!box)return;
+  [["À retravailler",6,"bad"],["Correct",12,"ghost"],["Très bien",17,"good"]].forEach(o=>{const b=document.createElement("button");b.className="btn sm "+o[2];b.textContent=o[0];b.onclick=()=>{recordOpenScore(o[1]);toast("Auto-évaluation enregistrée : "+o[1]+"/20");addXp(8);};box.appendChild(b);});
+}
+function recordOpenScore(note){ if(curLesson){const p=prog(curLesson.id);p.best=Math.max(p.best||0,note);save();} }
+
+/* ============================ Vue S'entraîner (flashcards SRS) ============================ */
+let trainCards=[],trainIdx=0,trainFlip=false;
+function allRetenir(subj,lvl,lessonId){
+  const out=[];lessonsOf(subj,lvl).forEach(les=>{ if(lessonId&&les.id!==lessonId)return; les.retenir.forEach((r,i)=>out.push({key:les.id+"_"+i,front:r[0],back:r[1],lesson:les.t})); });return out;
+}
+function srs(key){return data.srs[key]||(data.srs[key]={ease:2.5,interval:0,due:0,reps:0});}
+function renderTrain(){
+  const root=document.getElementById("view-train");root.innerHTML="";
+  const dueAll=dueExoCount(), dueSub=dueExoCount(curSubject), subjN=SUBJECTS.find(s=>s.id===curSubject).name;
+  const card=document.createElement("div");card.className="card";
+  card.innerHTML=`<h2 style="margin-top:0">🎯 S'entraîner</h2>
+   <div class="muted small" style="margin-bottom:12px">La <b>révision espacée</b> fait revenir ce que tu as raté, juste avant de l'oublier : c'est la clé d'une mémoire qui dure (et de la réussite aux examens).</div>
+   <div class="row">
+     <button class="btn" id="dueAll" style="flex:1">🔁 Révision du jour<br><span class="small" style="opacity:.9">${dueAll} exercice(s) à revoir</span></button>
+     <button class="btn ghost" id="dueSub" style="flex:1">📘 ${esc(subjN)}<br><span class="small">${dueSub} à revoir</span></button>
+   </div>
+   <div class="row" style="margin-top:10px"><button class="btn ghost" id="trainFlash" style="flex:1">🧠 Réviser les formules / règles (cartes mémo)</button></div>`;
+  root.appendChild(card);
+  document.getElementById("dueAll").onclick=()=>startDueReview(null);
+  document.getElementById("dueSub").onclick=()=>startDueReview(curSubject);
+  document.getElementById("trainFlash").onclick=()=>startTrain(null);
+}
+function startDueReview(subjectFilter){
+  const pool=dueExos(subjectFilter);
+  if(!pool.length){ toast("Rien à réviser pour l'instant — fais des exercices, ils reviendront tout seuls au bon moment ! 💪"); return; }
+  examMode="normal";
+  examQ=shuffle(pool.slice()).slice(0,Math.min(20,pool.length));examIdx=0;examScore=0;examMax=examQ.length;
+  startExamTimer(); show("exam"); drawExam();
+  toast("🔁 Révision : "+examQ.length+" exercice(s)");
+}
+let examStart=0, examTimerId=null;
+function startExamTimer(){ examStart=Date.now(); if(examTimerId)clearInterval(examTimerId); examTimerId=setInterval(()=>{ const el=document.getElementById("examTimer"); if(el){ const s=Math.floor((Date.now()-examStart)/1000); el.textContent="⏱ "+String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); } },1000); }
+function stopExamTimer(){ if(examTimerId){clearInterval(examTimerId);examTimerId=null;} }
+function startTrain(lessonId){
+  const root=document.getElementById("view-train");root.innerHTML="";
+  const pool=allRetenir(curSubject,curLevel,lessonId);
+  if(pool.length===0){root.innerHTML=`<div class="card muted center">Rien à réviser ici pour l'instant.</div>`;return;}
+  const t=todayNum();
+  let due=pool.filter(c=>srs(c.key).due<=t);if(due.length===0)due=pool.slice();
+  trainCards=shuffle(due.slice());trainIdx=0;trainFlip=false;
+  drawTrain();
+}
+function drawTrain(){
+  const root=document.getElementById("view-train");root.innerHTML="";
+  if(trainIdx>=trainCards.length){root.innerHTML=`<div class="card center"><div style="font-size:2.2rem">🎉</div><h3>Série terminée !</h3><div class="muted">${trainCards.length} formule(s)/règle(s) révisée(s).</div><button class="btn" id="again" style="margin-top:10px">↺ Recommencer</button></div>`;document.getElementById("again").onclick=()=>startTrain(null);return;}
+  const c=trainCards[trainIdx];
+  const head=document.createElement("div");head.className="card";head.innerHTML=`<div class="progress"><div style="width:${trainIdx/trainCards.length*100}%"></div></div><div class="muted small" style="margin-top:8px">🎯 Entraînement — ${esc(c.lesson)} · ${trainIdx+1}/${trainCards.length}</div>`;root.appendChild(head);
+  const fc=document.createElement("div");fc.className="flash";
+  fc.innerHTML=`<div class="term">${esc(c.front)}</div>${trainFlip?`<div class="ans">${esc(c.back)}</div>`:`<div class="hint">Touche la carte pour voir</div>`}`;
+  fc.onclick=()=>{if(!trainFlip){trainFlip=true;drawTrainKeepHead();}};
+  root.appendChild(fc);
+  if(trainFlip){
+    const g=document.createElement("div");g.className="row";g.style.marginTop="12px";
+    [["À revoir",0,"bad"],["Difficile",3,"ghost"],["Acquis",5,"good"]].forEach(o=>{const b=document.createElement("button");b.className="btn "+o[2];b.textContent=o[0];b.onclick=()=>gradeTrain(o[1]);g.appendChild(b);});
+    root.appendChild(g);
+  }
+}
+function drawTrainKeepHead(){drawTrain();}
+function gradeTrain(q){
+  const c=trainCards[trainIdx];const s=srs(c.key);const t=todayNum();
+  if(q<3){s.reps=0;s.interval=0;s.due=t;trainCards.push(c);}
+  else{s.reps++;s.ease=Math.max(1.3,s.ease+(q===5?0.1:-0.1));s.interval=s.reps===1?1:(s.reps===2?3:Math.round(s.interval*s.ease));s.due=t+s.interval;}
+  addXp(q>=3?4:1);save();trainIdx++;trainFlip=false;drawTrain();
+}
+
+/* ============================ Vue Évaluation (test noté) ============================ */
+let examQ=[],examIdx=0,examScore=0,examMax=0,examOpenPending=0;
+let examMode="normal";
+function renderExam(){
+  const root=document.getElementById("view-exam");root.innerHTML="";
+  const list=lessonsOf(curSubject,curLevel);
+  if(list.length===0){root.innerHTML=`<div class="card muted center">Aucune évaluation disponible ici.</div>`;return;}
+  const card=document.createElement("div");card.className="card";
+  card.innerHTML=`<h2 style="margin-top:0">📝 Évaluation — ${SUBJECTS.find(s=>s.id===curSubject).name} ${curLevel}</h2>
+   <div class="muted small" style="margin-bottom:10px">Un test noté qui pioche dans toutes les leçons du niveau. Note finale sur 20. Le <b>Mode Excellence</b> = épreuve plus longue (jusqu'à 20 questions) avec barème mention 🥇.</div>
+   <div class="row"><div><label>Leçon</label><select id="examScope"><option value="all">Toutes les leçons (${curLevel})</option>${list.map(l=>`<option value="${l.id}">${esc(l.t)}</option>`).join("")}</select></div>
+   <div style="display:flex;align-items:flex-end;gap:8px"><button class="btn" id="startExam">▶ Évaluation</button><button class="btn" id="startExcel" style="background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff" title="Épreuve longue, barème mention">🏆 Mode Excellence</button></div></div>`;
+  root.appendChild(card);
+  if(curSubject==="fr"||curSubject==="hist"){
+    const lycee=["2nde","1ère","Terminale"].indexOf(curLevel)>=0;
+    const rc=document.createElement("div");rc.className="card";
+    rc.innerHTML=`<h3 style="margin-top:0">✍️ Épreuve de rédaction <span class="muted small">— corrigée par l'IA</span></h3>
+     <div class="muted small">Entraîne-toi à ${lycee?"la <b>dissertation</b> / au <b>commentaire composé</b>":"la <b>rédaction</b> / au <b>développement construit</b>"} : un sujet, ta copie complète, puis une <b>correction rigoureuse</b> (méthodologie + connaissances) notée /20.</div>
+     <div style="margin-top:10px"><button class="btn" id="goRedac" style="background:linear-gradient(135deg,#0e7490,#0891b2);color:#fff">📝 Composer une rédaction</button></div>`;
+    root.appendChild(rc);
+    document.getElementById("goRedac").onclick=()=>renderRedaction();
+  }
+  const launch=(excel)=>{
+    const scope=document.getElementById("examScope").value;
+    let pool=[];(scope==="all"?list:list.filter(l=>l.id===scope)).forEach(l=>l.exos.forEach((e,i)=>pool.push({ex:e,lesson:l,exoId:exoKey(l.id,i)})));
+    pool=pool.filter(p=>p.ex.t!=="open"&&p.ex.t!=="dictee"); // test noté auto = QCM + saisie ; ouvert/dictée restent dans les leçons
+    if(pool.length===0){toast("Pas de question auto-corrigeable ici.");return;}
+    examMode=excel?"excellence":"normal";
+    const cap=excel?20:10;
+    examQ=shuffle(pool).slice(0,Math.min(cap,pool.length));examIdx=0;examScore=0;examMax=examQ.length;
+    if(excel)toast("🏆 Mode Excellence : "+examMax+" questions, barème mention");
+    startExamTimer(); drawExam();
+  };
+  document.getElementById("startExam").onclick=()=>launch(false);
+  document.getElementById("startExcel").onclick=()=>launch(true);
+}
+/* ---- Épreuve de rédaction (dissertation / commentaire / rédaction) corrigée par l'IA ---- */
+let redacState={sujet:""};
+function redacTypes(subject,level){
+  const lycee=["2nde","1ère","Terminale"].indexOf(level)>=0;
+  if(subject==="fr") return lycee?["Dissertation","Commentaire composé"]:["Rédaction — sujet de réflexion","Rédaction — sujet d'invention"];
+  if(subject==="hist") return lycee?["Composition","Analyse de document(s)"]:["Développement construit","Analyse de document"];
+  return [];
+}
+function renderRedaction(){
+  const root=document.getElementById("view-exam");root.innerHTML="";
+  const types=redacTypes(curSubject,curLevel);
+  if(!types.length){toast("Disponible en Français et Histoire.");renderExam();return;}
+  const subj=SUBJECTS.find(s=>s.id===curSubject);
+  const bc=document.createElement("div");bc.className="breadcrumb";bc.textContent="← Retour aux évaluations";bc.onclick=()=>renderExam();root.appendChild(bc);
+  const card=document.createElement("div");card.className="card";
+  card.innerHTML=`<h2 style="margin-top:0">✍️ Rédaction — ${subj.icon} ${subj.name} ${curLevel}</h2>
+   <div class="muted small" style="margin-bottom:8px">Choisis le type d'épreuve, obtiens un sujet (ou saisis le tien), rédige ta copie, puis fais-la corriger sur la <b>méthodologie</b> et les <b>connaissances</b>.</div>
+   <label>Type d'épreuve</label><select id="redacType">${types.map(t=>`<option>${esc(t)}</option>`).join("")}</select>
+   <div style="margin-top:8px"><button class="btn ghost" id="genSujet">🎲 Proposer un sujet (IA)</button></div>
+   <label style="margin-top:10px;display:block">Sujet</label><textarea id="redacSujet" rows="2" style="width:100%;box-sizing:border-box" placeholder="Le sujet apparaîtra ici — ou saisis / colle le tien.">${esc(redacState.sujet||"")}</textarea>
+   <label style="margin-top:10px;display:block">Ta copie</label><textarea id="redacEssay" rows="12" style="width:100%;box-sizing:border-box" placeholder="Rédige ici ta copie complète : introduction (amorce, problématique, annonce du plan), développement organisé, conclusion…"></textarea>
+   <div class="muted small" id="wc" style="margin-top:4px">0 mot</div>
+   <div style="margin-top:10px"><button class="btn" id="corrRedac">🧠 Faire corriger par l'IA</button></div>
+   <div id="redacFb" style="margin-top:12px"></div>`;
+  root.appendChild(card);
+  const essay=document.getElementById("redacEssay"), wc=document.getElementById("wc");
+  const upd=()=>{const n=(essay.value.trim().match(/\S+/g)||[]).length;wc.textContent=n+" mot"+(n>1?"s":"");};
+  essay.oninput=upd; upd();
+  document.getElementById("redacSujet").oninput=e=>{redacState.sujet=e.target.value;};
+  document.getElementById("genSujet").onclick=async()=>{
+    const type=document.getElementById("redacType").value, st=document.getElementById("redacSujet"), btn=document.getElementById("genSujet"), old=btn.textContent;
+    btn.disabled=true; btn.textContent="Génération…";
+    try{
+      const p=`Tu es un professeur de ${subj.name}, niveau ${curLevel} (système scolaire français). Propose UN sujet de "${type}" conforme au programme officiel et au niveau. Donne UNIQUEMENT l'intitulé du sujet (1 à 3 phrases), sans corrigé, sans plan, sans commentaire.`;
+      const r=await geminiGenerate(p); st.value=r.trim(); redacState.sujet=st.value;
+    }catch(e){ toast(String(e.message)==="NO_KEY"?"Active l'IA dans ⚙️ Réglages (clé Gemini).":"Erreur IA : "+e.message); }
+    btn.disabled=false; btn.textContent=old;
+  };
+  document.getElementById("corrRedac").onclick=async()=>{
+    const type=document.getElementById("redacType").value, sujet=document.getElementById("redacSujet").value.trim(), copie=essay.value.trim(), fb=document.getElementById("redacFb");
+    if(!sujet){toast("Indique d'abord un sujet.");return;}
+    if(copie.length<150){toast("Rédige une copie plus complète avant de corriger.");return;}
+    const btn=document.getElementById("corrRedac"); btn.disabled=true; fb.innerHTML='<span class="muted">🧠 Correction en cours… (quelques secondes)</span>';
+    try{
+      const p=`Tu es un correcteur EXIGEANT et bienveillant de ${subj.name}, niveau ${curLevel} (système scolaire français). Tu corriges une épreuve de type "${type}".\nSUJET : ${sujet}\nCOPIE DE L'ÉLÈVE :\n${copie}\n\nÉvalue la copie avec rigueur et attribue une note globale sur 20, fondée sur :\n1) MÉTHODOLOGIE (/8) : structure (introduction avec amorce + problématique + annonce de plan ; plan clair et progressif ; transitions ; conclusion + ouverture), respect des codes de la "${type}".\n2) CONNAISSANCES (/8) : exactitude, richesse et pertinence des arguments, précision et bon emploi des exemples / références.\n3) EXPRESSION (/4) : clarté, correction de la langue, richesse du vocabulaire.\nRéponds en français, STRICTEMENT dans ce format :\nNOTE: ../20\nMÉTHODOLOGIE (../8) : ...\nCONNAISSANCES (../8) : ...\nEXPRESSION (../4) : ...\nPOINTS FORTS : ...\nÀ AMÉLIORER : ...\nCONSEIL CLÉ : ...\nCite des éléments précis de la copie. Ne réécris pas la copie.`;
+      const r=await geminiGenerate(p);
+      const m=r.match(/NOTE\s*:?\s*(\d{1,2})(?:[.,]\d+)?\s*\/\s*20/i), note=m?parseInt(m[1]):null;
+      fb.innerHTML=`<div class="corrige">${note!=null?`<div class="note20" style="color:${note>=10?'var(--good)':'var(--warn)'}">${note}/20</div>`:""}<div style="white-space:pre-wrap;margin-top:6px">${esc(r)}</div></div>`;
+      if(note!=null){ const pr=prog("redac_"+curSubject+"_"+curLevel); pr.best=Math.max(pr.best||0,note); save(); addXp(Math.max(1,Math.round(note/2))); }
+    }catch(e){ fb.innerHTML=`<div class="corrige" style="border-color:var(--bad)">${String(e.message)==="NO_KEY"?"⚙️ Active l'IA dans Réglages (clé Gemini) pour activer la correction des rédactions.":"Erreur IA : "+esc(e.message)}</div>`; }
+    btn.disabled=false;
+  };
+}
+function drawExam(){
+  const root=document.getElementById("view-exam");root.innerHTML="";
+  if(examIdx>=examQ.length){
+    stopExamTimer();
+    const note=Math.round(examScore/examMax*20);
+    const ment = note>=16?{t:"Mention Très Bien",e:"🥇",c:"var(--good)"} : note>=14?{t:"Mention Bien",e:"🥈",c:"var(--good)"} : note>=12?{t:"Mention Assez Bien",e:"🥉",c:"var(--warn)"} : note>=10?{t:"Admis",e:"✅",c:"var(--warn)"} : {t:"À retravailler",e:"💪",c:"var(--bad)"};
+    // enregistre meilleure note par leçon concernée (approx : sur toutes)
+    const card=document.createElement("div");card.className="card center";
+    card.innerHTML=`<div style="font-size:2.4rem">${ment.e}</div><h2>${examMode==="excellence"?"🏆 Épreuve d'Excellence terminée":"Évaluation terminée"}</h2><div class="note20" style="color:${note>=10?'var(--good)':'var(--warn)'}">${note}/20</div><div style="font-weight:700;color:${ment.c};margin:4px 0">${ment.t}</div><div class="muted">${examScore}/${examMax} bonnes réponses</div><button class="btn ghost" id="examBack" style="margin-top:12px">Retour</button>`;
+    root.appendChild(card);document.getElementById("examBack").onclick=()=>renderExam();
+    addXp(note);
+    return;
+  }
+  const it=examQ[examIdx],ex=it.ex;
+  const head=document.createElement("div");head.className="card";head.innerHTML=`<div class="progress"><div style="width:${examIdx/examQ.length*100}%"></div></div><div class="muted small" style="margin-top:8px;display:flex;justify-content:space-between;gap:10px"><span>${examIdx+1}/${examQ.length} · ${esc(it.lesson.t)}</span><span id="examTimer">⏱ 00:00</span></div>`;root.appendChild(head);
+  const box=document.createElement("div");box.className="exo";box.innerHTML=`<div class="q">${esc(ex.q)}</div>`;
+  if(ex.t==="qcm"){
+    ex.opts.forEach((o,oi)=>{const b=document.createElement("button");b.className="opt";b.textContent=o;b.onclick=()=>{
+      if(box.querySelector(".opt.correct,.opt.wrong"))return;const ok=oi===ex.a;b.classList.add(ok?"correct":"wrong");
+      if(!ok)[...box.querySelectorAll(".opt")].forEach((x,xi)=>{if(xi===ex.a)x.classList.add("correct");});
+      if(ok)examScore++;recordNotion(ex.notion,curSubject,ok);if(it.exoId)scheduleExo(it.exoId,ok);save();setTimeout(()=>{examIdx++;drawExam();},800);
+    };box.appendChild(b);});
+  } else {
+    const inp=document.createElement("input");inp.placeholder="Ta réponse…";const btn=document.createElement("button");btn.className="btn sm";btn.textContent="Valider";btn.style.marginTop="8px";
+    const go=()=>{const ok=answerOk(inp.value,ex.a);if(ok)examScore++;recordNotion(ex.notion,curSubject,ok);if(it.exoId)scheduleExo(it.exoId,ok);save();inp.disabled=true;btn.disabled=true;const fb=document.createElement("div");fb.className="fb "+(ok?"ok":"no");fb.innerHTML=ok?"✓":`✗ → <b>${esc(ex.a[0])}</b>`;box.appendChild(fb);setTimeout(()=>{examIdx++;drawExam();},900);};
+    btn.onclick=go;inp.onkeydown=e=>{if(e.key==="Enter")go();};box.appendChild(inp); if(MATHISH.indexOf(it.subject||curSubject)>=0) box.appendChild(makeKeypad(inp)); box.appendChild(btn);
+  }
+  root.appendChild(box);
+}
+
+/* ============================ Vue Progrès ============================ */
+function renderProgress(){
+  const root=document.getElementById("view-progress");root.innerHTML="";
+  let totalLessons=0,started=0,bestSum=0,bestCount=0;
+  SUBJECTS.forEach(s=>{for(const l in CURRICULUM[s.id])CURRICULUM[s.id][l].forEach(les=>{totalLessons++;const p=data.prog[les.id];if(p&&(p.done||p.best)){started++;}if(p&&p.best){bestSum+=p.best;bestCount++;}});});
+  const head=document.createElement("div");head.className="card";head.innerHTML=`<h2 style="margin-top:0">📈 Ta progression</h2>
+   <div class="gtiles"><div class="stat"><div class="n" style="color:var(--warn)">${data.game.xp||0}</div><div class="l">⭐ Points</div></div>
+   <div class="stat"><div class="n" style="color:#fb7185">${data.game.streak||0}</div><div class="l">🔥 Jours de suite</div></div>
+   <div class="stat"><div class="n">${started}/${totalLessons}</div><div class="l">Leçons abordées</div></div>
+   <div class="stat"><div class="n" style="color:var(--good)">${bestCount?Math.round(bestSum/bestCount):"—"}</div><div class="l">Moyenne /20</div></div></div>`;root.appendChild(head);
+  // 🎓 Maîtrise globale + objectif
+  appendHTML(root,goalBannerHTML());
+  const gms=masteryStats(null); const glv=masteryLevel(gms.mastery);
+  const mcard=document.createElement("div");mcard.className="card";
+  mcard.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">🎓 Niveau de maîtrise</h3><span style="font-weight:800;color:${glv.color}">${gms.mastery==null?"À évaluer":gms.mastery+"% · "+glv.name}</span></div>
+   <div class="progress" style="margin-top:8px"><div style="width:${gms.mastery==null?0:gms.mastery}%"></div></div>
+   <div class="muted small" style="margin-top:6px">Calcul : précision aux exercices${gms.avg!=null?` (${gms.acc}%)`:""} + niveau aux évaluations${gms.avg!=null?` (moyenne ${gms.avg}/20)`:""}. Fais des exercices et des évaluations pour l'affiner.</div>`;
+  root.appendChild(mcard);
+  // 🩺 Diagnostic des points faibles
+  const weak=Object.values(data.notions||{}).filter(n=>n.seen>=2&&n.wrong>0).sort((a,b)=>(b.wrong/b.seen)-(a.wrong/a.seen)||b.wrong-a.wrong).slice(0,8);
+  const wcard=document.createElement("div");wcard.className="card";
+  if(!weak.length){
+    wcard.innerHTML=`<h3 style="margin-top:0">🩺 Tes points faibles</h3><div class="muted small">Fais quelques exercices : l'app repère automatiquement les notions à retravailler et te propose un entraînement ciblé. 💪</div>`;
+  }else{
+    wcard.innerHTML=`<h3 style="margin-top:0">🩺 Points faibles — à retravailler en priorité</h3><div class="muted small" style="margin-bottom:8px">Du plus fragile au moins fragile. Clique pour t'entraîner uniquement dessus.</div>`;
+    weak.forEach(n=>{const sub=SUBJECTS.find(s=>s.id===n.subject);const rate=Math.round(n.wrong/n.seen*100);
+      const row=document.createElement("div");row.className="lessonrow";
+      row.innerHTML=`<span style="font-size:1.3rem">${sub?sub.icon:"📌"}</span><div class="ln">${esc(n.notion)}<div class="lm">${sub?sub.name:""} · ${n.wrong}/${n.seen} erreurs (${rate}%)</div></div><span class="btn sm">🎯 S'entraîner</span>`;
+      row.onclick=()=>startNotionPractice(n.notion,n.subject);wcard.appendChild(row);});
+  }
+  root.appendChild(wcard);
+  SUBJECTS.forEach(s=>{
+    const lessons=[];for(const l in CURRICULUM[s.id])CURRICULUM[s.id][l].forEach(les=>lessons.push({les,lvl:l}));
+    if(!lessons.length)return;
+    const done=lessons.filter(o=>{const p=data.prog[o.les.id];return p&&(p.best||p.done);}).length;
+    const ms=masteryStats(s.id); const mlv=masteryLevel(ms.mastery);
+    const card=document.createElement("div");card.className="card";
+    card.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">${s.icon} ${s.name}</h3><span class="muted small">${done}/${lessons.length} leçons${ms.mastery!=null?` · <b style="color:${mlv.color}">${ms.mastery}% ${mlv.name}</b>`:""}</span></div><div class="progress" style="margin-top:8px"><div style="width:${Math.round(done/lessons.length*100)}%"></div></div>`;
+    root.appendChild(card);
+  });
+}
+function startNotionPractice(notion,subject){
+  const pool=[];const C=CURRICULUM[subject]||{};
+  for(const lv in C)C[lv].forEach(les=>les.exos.forEach((ex,i)=>{ if(ex.notion===notion && ex.t!=="open" && ex.t!=="dictee") pool.push({ex:ex,lesson:les,subject:subject,exoId:exoKey(les.id,i)}); }));
+  if(!pool.length){toast("Pas d'exercice auto-corrigeable sur cette notion.");return;}
+  curSubject=subject;data.settings.lastSubject=subject;save();renderSubjects();refreshPick();
+  examMode="normal";
+  examQ=shuffle(pool.slice());examIdx=0;examScore=0;examMax=examQ.length;
+  startExamTimer(); show("exam");drawExam();
+  toast("🎯 Entraînement ciblé : "+notion);
+}
+
+/* ============================ Vue Réglages ============================ */
+function renderSettings(){
+  const root=document.getElementById("view-settings");root.innerHTML="";
+  const g=data.settings;
+  const card=document.createElement("div");card.className="card";
+  card.innerHTML=`<h2 style="margin-top:0">🧠 Correction par l'IA (Gemini)</h2>
+   <div class="muted small" style="margin-bottom:10px">Pour faire corriger les <b>questions ouvertes</b> (rédactions, analyses) avec une vraie note /20 et des conseils. Gratuit via Google AI Studio. La clé reste enregistrée sur cet appareil uniquement.</div>
+   <label>Clé API Gemini</label><input id="gkey" type="password" placeholder="Colle ta clé ici…" value="${esc(g.geminiKey||GEMINI_KEY_BUILTIN||"")}">${GEMINI_KEY_BUILTIN&&!(g.geminiKey||"").trim()?'<div class="small" style="color:var(--good);margin-top:4px">✓ Une clé est intégrée par défaut dans l\'application : l\'IA fonctionne sans configuration.</div>':""}
+   <div class="row" style="margin-top:10px"><div><label>Modèle</label><input id="gmodel" placeholder="gemini-2.5-flash" value="${esc(g.geminiModel||"gemini-2.5-flash")}"></div>
+   <div style="display:flex;align-items:flex-end;gap:8px"><button class="btn" id="gsave">💾 Enregistrer</button><button class="btn ghost" id="gtest">Tester</button></div></div>
+   <div class="small" id="gstatus" style="margin-top:8px"></div>
+   <div class="small muted" style="margin-top:8px">Obtenir une clé : <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a></div>`;
+  root.appendChild(card);
+  document.getElementById("gsave").onclick=()=>{data.settings.geminiKey=document.getElementById("gkey").value.trim();data.settings.geminiModel=(document.getElementById("gmodel").value.trim()||"gemini-2.5-flash");save();toast("Réglages IA enregistrés ✓");};
+  document.getElementById("gtest").onclick=async()=>{const st=document.getElementById("gstatus");data.settings.geminiKey=document.getElementById("gkey").value.trim();data.settings.geminiModel=(document.getElementById("gmodel").value.trim()||"gemini-2.5-flash");save();st.textContent="Test en cours…";try{const r=await geminiGenerate('Réponds juste "OK" si tu me reçois.');st.style.color="var(--good)";st.textContent="✓ Connexion réussie : "+r.slice(0,40);}catch(e){st.style.color="var(--bad)";st.textContent="✗ "+(String(e.message)==="NO_KEY"?"Aucune clé saisie.":String(e.message));}};
+
+  const exC=document.createElement("div");exC.className="card";
+  exC.innerHTML=`<h3 style="margin-top:0">🎯 Mon objectif</h3><div class="muted small" style="margin-bottom:8px">Fixe-toi un cap : l'app affiche ta progression vers cet objectif (accueil + onglet Progrès) pour te motiver.</div>
+   <label>Ce que je vise</label><select id="goalSel"><option value="">— Choisir un objectif —</option>${GOALS.map(g=>`<option value="${g.id}"${data.settings.goal===g.id?" selected":""}>${g.emoji} ${esc(g.label)}</option>`).join("")}</select>
+   <div class="row" style="margin-top:10px"><div style="max-width:240px"><label>Date de mon examen</label><input type="date" id="examDate" value="${esc(data.settings.examDate||"")}"></div><div style="display:flex;align-items:flex-end"><button class="btn" id="examDateSave">💾 Enregistrer</button></div></div>`;
+  root.appendChild(exC);
+  document.getElementById("examDateSave").onclick=()=>{data.settings.examDate=document.getElementById("examDate").value||null;data.settings.goal=document.getElementById("goalSel").value||null;save();toast("Objectif enregistré ✓");};
+
+  const data2=document.createElement("div");data2.className="card";
+  data2.innerHTML=`<h3 style="margin-top:0">Vos données</h3><div class="muted small" style="margin-bottom:8px">La progression est enregistrée dans ce navigateur. Exportez une sauvegarde de temps en temps.</div>
+   <div class="row"><button class="btn ghost" id="exp">⬇ Exporter</button><button class="btn ghost" id="imp">⬆ Importer</button><input type="file" id="impf" accept="application/json" class="hidden"><button class="btn bad" id="rst">🗑 Tout effacer</button></div>`;
+  root.appendChild(data2);
+  document.getElementById("exp").onclick=()=>{const b=new Blob([JSON.stringify(data)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="reviz-sauvegarde.json";a.click();toast("Sauvegarde exportée ✓");};
+  document.getElementById("imp").onclick=()=>document.getElementById("impf").click();
+  document.getElementById("impf").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o.settings)throw 0;data=o;save();toast("Sauvegarde importée ✓");updateHud();renderSettings();}catch(_){toast("Fichier invalide");}};r.readAsText(f);};
+  document.getElementById("rst").onclick=()=>{if(confirm("Effacer TOUTE la progression ?")){data={settings:{theme:data.settings.theme,geminiKey:data.settings.geminiKey,geminiModel:data.settings.geminiModel,examDate:data.settings.examDate},prog:{},srs:{},exoSrs:{},notions:{},game:{xp:0,streak:0,todayDay:null,lastDay:null}};save();updateHud();toast("Tout a été effacé");renderSettings();}};
+}
+
+/* ============================ Thème & init ============================ */
+function applyTheme(){const dark=data.settings.theme!=="light";document.documentElement.setAttribute("data-theme",dark?"dark":"light");document.getElementById("themeBtn").textContent=dark?"☀️":"🌙";}
+document.getElementById("themeBtn").onclick=()=>{data.settings.theme=data.settings.theme==="light"?"dark":"light";save();applyTheme();};
+function init(){
+  if(!data.settings)data.settings={theme:"dark"};if(!data.prog)data.prog={};if(!data.srs)data.srs={};if(!data.exoSrs)data.exoSrs={};if(!data.notions)data.notions={};if(!data.game)data.game={xp:0,streak:0};
+  ensureLevel();applyTheme();renderSubjects();refreshPick();updateHud();show("lessons");
+}
+init();
+</script>
+</body>
+</html>
